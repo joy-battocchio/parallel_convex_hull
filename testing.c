@@ -32,5 +32,16 @@ int main(int argc, char *argv[]){
     VECTOR_INIT(cloud);
     cloud_generator(&cloud, cloud_array);
     print_cloud(&cloud);
+
+    ///// TO TRANSLATE
+    ///// OCHHIO AL SORT, CERCA QSORT IN serial_dei.c PER INFO
+    // sort(a.begin(), a.end());
+	// vector<pair<int, int> >ans = divide(a);
+
+	// cout << "convex hull:\n";
+	// for (auto e:ans)
+	// cout << e.first << " "
+	// 		<< e.second << endl;
+
     return 0;
 }

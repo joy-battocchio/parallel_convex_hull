@@ -214,6 +214,33 @@ vector bruteHull(vector *a)
 	return ret;
 }
 
+vector divide(vector *a)
+{
+	// If the number of points is less than 6 then the
+	// function uses the brute algorithm to find the
+	// convex hull
+	if (a->vectorList.total <= 5)
+		return bruteHull(a);
+
+	// left contains the left half points
+	// right contains the right half points
+	VECTOR_INIT(left);
+	VECTOR_INIT(right);
+	for (int i=0; i<a->vectorList.total/2; i++)
+		left.pfVectorAdd(&left,&a[i]);
+	for (int i=a->vectorList.total/2; i<a->vectorList.total; i++)
+		right.pfVectorAdd(&right,&a[i]);
+
+	// convex hull for the left and right sets
+	VECTOR_INIT(left_hull);
+	VECTOR_INIT(right_hull);
+	left_hull = divide(&left);
+	right_hull = divide(&right);
+
+	// merging the convex hulls
+	return merger(&left_hull, &right_hull);
+}
+
 
 
 
