@@ -37,6 +37,23 @@ typedef struct {
 
 point mid;
 
+point get_point(vector *v, int i){ return *(point*)((v->vectorList.items[i]));}
+
+int hasElement(vector *v, point elem){
+    int total = v->vectorList.total;
+    int i;
+    if(v){
+        for(i=0; i<total; i++){
+			point vec_elem = *(point*)(v->vectorList.items[i]);
+            if((vec_elem.x == elem.x) && (vec_elem.y == elem.y)){
+                return i;
+            }
+        }
+        return -1;
+    }
+	return -1;
+}
+
 int quad(point p){
     if(p.x >= 0 && p.y >= 0) return 1;
     if(p.x <= 0 && p.y >= 0) return 2;
@@ -52,10 +69,11 @@ int orientation(point a, point b, point c){
 }
 
 //compare the points for the sort function by polar angle
-bool compare(point p1, point q1)
+int compare(const void *p1,const void *q1)
 {
-	point p = {.x = p1.x - mid.x, .y = p1.y - mid.y};
-    point q = {.x = q1.x - mid.x, .y = q1.y - mid.y};
+
+	point p = {.x = ((point*)p1)->x - mid.x, .y = ((point*)p1)->y - mid.y};
+    point q = {.x = ((point*)q1)->x - mid.x, .y = ((point*)q1)->y - mid.y};
 
 	int one = quad(p);
 	int two = quad(q);
@@ -64,25 +82,27 @@ bool compare(point p1, point q1)
 	return (p.y*q.x < q.y*p.x);
 }
 
-vector merger(vector *aV, vector *bV)
+vector merger(vector *a, vector *b)
 {
 	// n1 -> number of points in polygon a
 	// n2 -> number of points in polygon b
-    point* a = (point*)aV;
-    point* b = (point*)bV;
+    // point* a = (point*)aV;
+    // point* b = (point*)bV;
 
-	int n1 = aV->pfVectorTotal(&aV), n2 = bV->pfVectorTotal(&bV);
+	int n1 = a->vectorList.total, n2 = b->vectorList.total;
 
 	int ia = 0, ib = 0;
 
     // ia -> rightmost point of a
 	for (int i=1; i<n1; i++)
-		if (a[i].x > a[ia].x)
+		if(get_point(a, i).x > get_point(a, ia).x)
 			ia = i;
+		// if (a[i].x > a[ia].x)
+		// 	ia = i;
 
 	// ib -> leftmost point of b
 	for (int i=1; i<n2; i++)
-		if (b[i].x < b[ib].x)
+		if (get_point(b,i).x < get_point(b,i).x)
 			ib=i;
 
 	// finding the upper tangent
@@ -90,10 +110,10 @@ vector merger(vector *aV, vector *bV)
 	bool done = 0;
 	while (!done){
 		done = 1;
-		while (orientation(b[indb], a[inda], a[(inda+1)%n1]) >=0)
+		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (inda+1)%n1)) >=0)
 			inda = (inda + 1) % n1;
 
-		while (orientation(a[inda], b[indb], b[(n2+indb-1)%n2]) <=0){
+		while (orientation(get_point(a, inda), get_point(b, indb), get_point(b, (n2+indb-1)%n2)) <=0){
 			indb = (n2+indb-1)%n2;
 			done = 0;
 		}
@@ -106,10 +126,10 @@ vector merger(vector *aV, vector *bV)
 	while (!done)//finding the lower tangent
 	{
 		done = 1;
-		while (orientation(a[inda], b[indb], b[(indb+1)%n2])>=0)
+		while (orientation(get_point(a, inda), get_point(b, indb), get_point(b, (indb+1)%n2))>=0)
 			indb=(indb+1)%n2;
 
-		while (orientation(b[indb], a[inda], a[(n1+inda-1)%n1])<=0)
+		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (n1+inda-1)%n1))<=0)
 		{
 			inda=(n1+inda-1)%n1;
 			done=0;
@@ -137,70 +157,63 @@ vector merger(vector *aV, vector *bV)
 		ret.pfVectorAdd(&ret, &b[ind]);
 	}
 	return ret;
-
 }
 
-// vector bruteHull(vector *aV)
-// {
-// 	// Take any pair of points from the set and check
-// 	// whether it is the edge of the convex hull or not.
-// 	// if all the remaining points are on the same side
-// 	// of the line then the line is the edge of convex
-// 	// hull otherwise not
-//     point* a = (point*)aV;
-// 	set<pair<int, int> >s;
+vector bruteHull(vector *a)
+{
+	// Take any pair of points from the set and check
+	// whether it is the edge of the convex hull or not.
+	// if all the remaining points are on the same side
+	// of the line then the line is the edge of convex
+	// hull otherwise not
+    //point* a = (point*)aV;
+	VECTOR_INIT(ret);
 
-// 	for (int i=0; i<a.size(); i++)
-// 	{
-// 		for (int j=i+1; j<a.size(); j++)
-// 		{
-// 			int x1 = a[i].first, x2 = a[j].first;
-// 			int y1 = a[i].second, y2 = a[j].second;
+	for (int i=0; i<a->vectorList.total; i++)
+	{
+		for (int j=i+1; j<a->vectorList.total; j++)
+		{
+			int x1 = get_point(a,i).x, x2 = get_point(a,j).x;
+			int y1 = get_point(a,i).y, y2 = get_point(a,j).y;
 
-// 			int a1 = y1-y2;
-// 			int b1 = x2-x1;
-// 			int c1 = x1*y2-y1*x2;
-// 			int pos = 0, neg = 0;
-// 			for (int k=0; k<a.size(); k++)
-// 			{
-// 				if (a1*a[k].first+b1*a[k].second+c1 <= 0)
-// 					neg++;
-// 				if (a1*a[k].first+b1*a[k].second+c1 >= 0)
-// 					pos++;
-// 			}
-// 			if (pos == a.size() || neg == a.size())
-// 			{
-// 				s.insert(a[i]);
-// 				s.insert(a[j]);
-// 			}
-// 		}
-// 	}
+			int a1 = y1-y2;
+			int b1 = x2-x1;
+			int c1 = x1*y2-y1*x2;
+			int pos = 0, neg = 0;
+			for (int k=0; k<a->vectorList.total; k++)
+			{
+				if (a1*get_point(a,k).x+b1*get_point(a,k).y+c1 <= 0)
+					neg++;
+				if (a1*get_point(a,k).x+b1*get_point(a,k).y+c1 >= 0)
+					pos++;
+			}
+			if (pos == a->vectorList.total || neg == a->vectorList.total)
+			{
+				if(hasElement(&ret, get_point(a,i)) == -1) ret.pfVectorAdd(&ret,&a[i]);
+				if(hasElement(&ret, get_point(a,j)) == -1) ret.pfVectorAdd(&ret,&a[j]);
+			}
+		}
+	}
 
-// 	vector<pair<int, int>>ret;
-// 	for (auto e:s)
-// 		ret.push_back(e);
-
-// 	// Sorting the points in the anti-clockwise order
-// 	mid = {0, 0};
-// 	int n = ret.size();
-// 	for (int i=0; i<n; i++)
-// 	{
-// 		mid.first += ret[i].first;
-// 		mid.second += ret[i].second;
-// 		ret[i].first *= n;
-// 		ret[i].second *= n;
-// 	}
-// 	sort(ret.begin(), ret.end(), compare);
-// 	for (int i=0; i<n; i++)
-// 		ret[i] = make_pair(ret[i].first/n, ret[i].second/n);
-
-// 	return ret;
-// }
-
-
-int main(int argc, char *argv[]){
-    
-
-
-    return 0;
+	// Sorting the points in the anti-clockwise order
+	mid.x = 0;
+	mid.y = 0;
+	int n = ret.vectorList.total;
+	for (int i=0; i<n; i++)
+	{
+		mid.x += get_point(&ret,i).x;
+		mid.y += get_point(&ret,i).y;
+		(*(point*)ret.vectorList.items[i]).x = get_point(&ret,i).x * n;
+		(*(point*)ret.vectorList.items[i]).y = get_point(&ret,i).y * n;
+	}
+	qsort(&ret.vectorList, ret.vectorList.total,sizeof(*ret.vectorList.items), compare);
+	for (int i=0; i<n; i++){
+		(*(point*)ret.vectorList.items[i]).x = get_point(&ret,i).x / n;
+		(*(point*)ret.vectorList.items[i]).y = get_point(&ret,i).y / n;
+	}
+	return ret;
 }
+
+
+
+
