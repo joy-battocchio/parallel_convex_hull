@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define VECTOR_INIT_CAPACITY 6
 #define UNDEFINE  -1
@@ -96,6 +97,19 @@ void *vectorGet(vector *v, int index)
         }
     }
     return readData;
+}
+
+int hasElement(vector *v, void *elem){
+    int total = v->vectorList.total;
+    int i;
+    if(v){
+        for(i=0; i<total; i++){
+            if(v->vectorList.items[i] == *elem){
+                return i;
+            }
+        }
+        return -1;
+    }
 }
 int vectorDelete(vector *v, int index)
 {
