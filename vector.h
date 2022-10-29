@@ -28,8 +28,7 @@ struct sVector
     int (*pfVectorDelete)(vector *, int);
     int (*pfVectorFree)(vector *);
 };
-int vectorTotal(vector *v)
-{
+int vectorTotal(vector *v){
     int totalCount = UNDEFINE;
     if(v)
     {
@@ -37,8 +36,8 @@ int vectorTotal(vector *v)
     }
     return totalCount;
 }
-int vectorResize(vector *v, int capacity)
-{
+
+int vectorResize(vector *v, int capacity){
     int  status = UNDEFINE;
     if(v)
     {
@@ -73,8 +72,8 @@ int vectorPushBack(vector *v, void *item){
     }
     return status;
 }
-int vectorSet(vector *v, int index, void *item)
-{
+
+int vectorSet(vector *v, int index, void *item){
     int  status = UNDEFINE;
     if(v)
     {
@@ -86,8 +85,8 @@ int vectorSet(vector *v, int index, void *item)
     }
     return status;
 }
-void *vectorGet(vector *v, int index)
-{
+
+void *vectorGet(vector *v, int index){
     void *readData = NULL;
     if(v)
     {
@@ -98,8 +97,8 @@ void *vectorGet(vector *v, int index)
     }
     return readData;
 }
-int vectorDelete(vector *v, int index)
-{
+
+int vectorDelete(vector *v, int index){
     int  status = UNDEFINE;
     int i = 0;
     if(v)
@@ -121,8 +120,8 @@ int vectorDelete(vector *v, int index)
     }
     return status;
 }
-int vectorFree(vector *v)
-{
+
+int vectorFree(vector *v){
     int  status = UNDEFINE;
     if(v)
     {
@@ -132,8 +131,8 @@ int vectorFree(vector *v)
     }
     return status;
 }
-void vector_init(vector *v)
-{
+
+void vector_init(vector *v){
     //init function pointers
     v->pfVectorTotal = vectorTotal;
     v->pfVectorResize = vectorResize;

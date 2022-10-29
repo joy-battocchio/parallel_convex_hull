@@ -3,17 +3,17 @@
 #include <stdlib.h>
 #include "serial_dei.c"
 
-#define CLOUD_SIZE 1000
-#define CLOUD_WIDTH 20000
-#define CLOUD_HEIGHT 20000
+#define CLOUD_SIZE 100
+#define CLOUD_WIDTH 1000
+#define CLOUD_HEIGHT 1000
 
-void print_cloud(vector *v){
-    int i;
-    for(i = 0; i < v->vectorList.total; i++){
-        point elem = get_point(v, i);
-        printf("point %d: ( %d ; %d )\n", i, elem.x, elem.y);
-    }
-}
+// void print_cloud(vector *v){
+//     int i;
+//     for(i = 0; i < v->vectorList.total; i++){
+//         point elem = get_point(v, i);
+//         printf("point %d: ( %d ; %d )\n", i, elem.x, elem.y);
+//     }
+// }
 
 void cloud_generator(vector *v, point *c_array){
     int i;
@@ -27,21 +27,28 @@ void cloud_generator(vector *v, point *c_array){
 
 int main(int argc, char *argv[]){
     
+    FILE *fptr;
+    fptr = fopen("cloud.txt","w");
+
     srand(time(NULL));   // Initialization, should only be called once.
     point cloud_array[CLOUD_SIZE];
     VECTOR_INIT(cloud);
+    VECTOR_INIT(hull);
     cloud_generator(&cloud, cloud_array);
+    printf("Initial cloud: \n");
     print_cloud(&cloud);
 
-    ///// TO TRANSLATE
-    ///// OCHHIO AL SORT, CERCA QSORT IN serial_dei.c PER INFO
-    // sort(a.begin(), a.end());
-	// vector<pair<int, int> >ans = divide(a);
+    //the sorting works, already checked
+	qsort(cloud.vectorList.items, cloud.vectorList.total,sizeof(*cloud.vectorList.items), compareX);
+    
+    hull = divide(&cloud);
+    printf("Convex hull: \n");
+    print_cloud(&hull);
 
-	// cout << "convex hull:\n";
-	// for (auto e:ans)
-	// cout << e.first << " "
-	// 		<< e.second << endl;
-
+    fprintf(fptr,"Copy the point as are in the following webapp:\nhttps://planetcalc.com/8576/\n\n");
+    for(int i = 0; i < CLOUD_SIZE; i++){
+        fprintf(fptr, "%d;%d\n", cloud_array[i].x, cloud_array[i].y);
+    }
+    fclose(fptr);
     return 0;
 }

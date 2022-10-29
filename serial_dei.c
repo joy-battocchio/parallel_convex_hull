@@ -49,6 +49,7 @@ int hasElement(vector *v, point elem){
                 return i;
             }
         }
+		//printf("i = %d", i);
         return -1;
     }
 	return -1;
@@ -71,16 +72,48 @@ int orientation(point a, point b, point c){
 //compare the points for the sort function by polar angle
 int compare(const void *p1,const void *q1)
 {
+	point* p_pointer = *(point**)p1;
+	point* q_pointer = *(point**)q1;
 
-	point p = {.x = ((point*)p1)->x - mid.x, .y = ((point*)p1)->y - mid.y};
-    point q = {.x = ((point*)q1)->x - mid.x, .y = ((point*)q1)->y - mid.y};
-
+	point p = {.x = ((point*)p_pointer)->x - mid.x, .y = ((point*)p_pointer)->y - mid.y};
+    point q = {.x = ((point*)q_pointer)->x - mid.x, .y = ((point*)q_pointer)->y - mid.y};
+	//printf("\nComparing: p( %d , %d) ; q( %d , %d)\n", p.x, p.y, q.x, q.y);
 	int one = quad(p);
 	int two = quad(q);
 
-	if (one != two) return (one < two);
-	return (p.y*q.x < q.y*p.x);
+	if (one != two) return (one > two);
+	return (p.y*q.x > q.y*p.x);
 }
+
+//compare the points to sort them by x 
+int compareX(const void *p1, const void *q1){
+	point* p_pointer = *(point**)p1;
+	point* q_pointer = *(point**)q1;
+
+	point p = {.x = ((point*)p_pointer)->x, .y = ((point*)p_pointer)->y};
+    point q = {.x = ((point*)q_pointer)->x, .y = ((point*)q_pointer)->y};
+	return p.x - q.x;
+}
+
+
+
+
+
+
+void print_cloud(vector *v){
+    int i;
+    for(i = 0; i < v->vectorList.total; i++){
+        point elem = get_point(v, i);
+        printf("point %d: ( %d ; %d )\n", i, elem.x, elem.y);
+    }
+}
+
+
+
+
+
+
+
 
 vector merger(vector *a, vector *b)
 {
@@ -97,34 +130,39 @@ vector merger(vector *a, vector *b)
 	for (int i=1; i<n1; i++)
 		if(get_point(a, i).x > get_point(a, ia).x)
 			ia = i;
-		// if (a[i].x > a[ia].x)
-		// 	ia = i;
+	printf("\nrightmost point in a: a( %d, %d)\n",get_point(a,ia).x,get_point(a,ia).y);
+	
 
 	// ib -> leftmost point of b
 	for (int i=1; i<n2; i++)
-		if (get_point(b,i).x < get_point(b,i).x)
+		if (get_point(b,i).x < get_point(b,ib).x)
 			ib=i;
+	printf("\nleftmost point in b: b( %d, %d)\n",get_point(b,ib).x,get_point(b,ib).y);
+	
 
 	// finding the upper tangent
 	int inda = ia, indb = ib;
 	bool done = 0;
 	while (!done){
 		done = 1;
-		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (inda+1)%n1)) >=0)
+		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (inda+1)%n1)) >=0){
 			inda = (inda + 1) % n1;
+			printf("\ntangent: a( %d, %d)\n",get_point(a,inda).x,get_point(a,inda).y);
+		}
 
 		while (orientation(get_point(a, inda), get_point(b, indb), get_point(b, (n2+indb-1)%n2)) <=0){
 			indb = (n2+indb-1)%n2;
+			printf("\ntangent: b( %d, %d)\n", get_point(b,indb).x, get_point(b,indb).y);
 			done = 0;
 		}
 	}
+	printf("\nDone upper tangent: a( %d, %d) b( %d, %d)\n", get_point(a,inda).x, get_point(a,inda).y,get_point(b,indb).x,get_point(b,indb).y);
 
 	int uppera = inda, upperb = indb;
 	inda = ia, indb=ib;
 	done = 0;
-	int g = 0;
-	while (!done)//finding the lower tangent
-	{
+	//finding the lower tangent
+	while (!done){
 		done = 1;
 		while (orientation(get_point(a, inda), get_point(b, indb), get_point(b, (indb+1)%n2))>=0)
 			indb=(indb+1)%n2;
@@ -135,6 +173,8 @@ vector merger(vector *a, vector *b)
 			done=0;
 		}
 	}
+	printf("\nDone lower tangent: a( %d, %d) b( %d, %d)\n", get_point(a,inda).x, get_point(a,inda).y,get_point(b,indb).x,get_point(b,indb).y);
+
 
 	int lowera = inda, lowerb = indb;
 	VECTOR_INIT(ret);
@@ -142,19 +182,19 @@ vector merger(vector *a, vector *b)
 	//ret contains the convex hull after merging the two convex hulls
 	//with the points sorted in anti-clockwise order
 	int ind = uppera;
-	ret.pfVectorAdd(&ret, &a[uppera]);
+	ret.pfVectorAdd(&ret, a->vectorList.items[uppera]);
 	while (ind != lowera)
 	{
 		ind = (ind+1)%n1;
-		ret.pfVectorAdd(&ret, &a[ind]);
+		ret.pfVectorAdd(&ret, a->vectorList.items[ind]);
 	}
 
 	ind = lowerb;
-	ret.pfVectorAdd(&ret, &b[lowerb]);
+	ret.pfVectorAdd(&ret, b->vectorList.items[lowerb]);
 	while (ind != upperb)
 	{
 		ind = (ind+1)%n2;
-		ret.pfVectorAdd(&ret, &b[ind]);
+		ret.pfVectorAdd(&ret, b->vectorList.items[ind]);
 	}
 	return ret;
 }
@@ -168,7 +208,7 @@ vector bruteHull(vector *a)
 	// hull otherwise not
     //point* a = (point*)aV;
 	VECTOR_INIT(ret);
-
+	//printf("\npoint in a: {%d, %d}\n", get_point(a,0).x, get_point(a,0).y);
 	for (int i=0; i<a->vectorList.total; i++)
 	{
 		for (int j=i+1; j<a->vectorList.total; j++)
@@ -189,11 +229,20 @@ vector bruteHull(vector *a)
 			}
 			if (pos == a->vectorList.total || neg == a->vectorList.total)
 			{
-				if(hasElement(&ret, get_point(a,i)) == -1) ret.pfVectorAdd(&ret,&a[i]);
-				if(hasElement(&ret, get_point(a,j)) == -1) ret.pfVectorAdd(&ret,&a[j]);
+				if(hasElement(&ret, get_point(a,i)) == -1){
+					ret.pfVectorAdd(&ret,a->vectorList.items[i]);
+				}
+				if(hasElement(&ret, get_point(a,j)) == -1){
+					ret.pfVectorAdd(&ret,a->vectorList.items[j]);
+				}
+				//printf("\ncopying in ret\n");
+				
 			}
 		}
 	}
+	//printf("\npoint in ret: {%d, %d}\n", get_point(&ret,0).x, get_point(&ret,0).y);
+
+	//printf("\nDone first part of brute hull\n");
 
 	// Sorting the points in the anti-clockwise order
 	mid.x = 0;
@@ -206,11 +255,14 @@ vector bruteHull(vector *a)
 		(*(point*)ret.vectorList.items[i]).x = get_point(&ret,i).x * n;
 		(*(point*)ret.vectorList.items[i]).y = get_point(&ret,i).y * n;
 	}
-	qsort(&ret.vectorList, ret.vectorList.total,sizeof(*ret.vectorList.items), compare);
+	qsort(ret.vectorList.items, ret.vectorList.total,sizeof(*ret.vectorList.items), compare);
 	for (int i=0; i<n; i++){
 		(*(point*)ret.vectorList.items[i]).x = get_point(&ret,i).x / n;
 		(*(point*)ret.vectorList.items[i]).y = get_point(&ret,i).y / n;
 	}
+	//printf("\nDone second part of brute hull\n");
+	//printf("semi cloud done: \n");
+	//print_cloud(&ret);
 	return ret;
 }
 
@@ -219,23 +271,24 @@ vector divide(vector *a)
 	// If the number of points is less than 6 then the
 	// function uses the brute algorithm to find the
 	// convex hull
-	if (a->vectorList.total <= 5)
-		return bruteHull(a);
+	if (a->vectorList.total <= 5) return bruteHull(a);
 
 	// left contains the left half points
 	// right contains the right half points
 	VECTOR_INIT(left);
 	VECTOR_INIT(right);
 	for (int i=0; i<a->vectorList.total/2; i++)
-		left.pfVectorAdd(&left,&a[i]);
+		left.pfVectorAdd(&left,a->vectorList.items[i]);
 	for (int i=a->vectorList.total/2; i<a->vectorList.total; i++)
-		right.pfVectorAdd(&right,&a[i]);
+		right.pfVectorAdd(&right,a->vectorList.items[i]);
 
 	// convex hull for the left and right sets
 	VECTOR_INIT(left_hull);
 	VECTOR_INIT(right_hull);
 	left_hull = divide(&left);
 	right_hull = divide(&right);
+
+	printf("\nDone left and right\n");
 
 	// merging the convex hulls
 	return merger(&left_hull, &right_hull);
