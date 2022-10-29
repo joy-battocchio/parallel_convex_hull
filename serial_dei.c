@@ -49,7 +49,6 @@ int hasElement(vector *v, point elem){
                 return i;
             }
         }
-		//printf("i = %d", i);
         return -1;
     }
 	return -1;
@@ -77,7 +76,6 @@ int compare(const void *p1,const void *q1)
 
 	point p = {.x = ((point*)p_pointer)->x - mid.x, .y = ((point*)p_pointer)->y - mid.y};
     point q = {.x = ((point*)q_pointer)->x - mid.x, .y = ((point*)q_pointer)->y - mid.y};
-	//printf("\nComparing: p( %d , %d) ; q( %d , %d)\n", p.x, p.y, q.x, q.y);
 	int one = quad(p);
 	int two = quad(q);
 
@@ -95,26 +93,6 @@ int compareX(const void *p1, const void *q1){
 	return p.x - q.x;
 }
 
-
-
-
-
-
-void print_cloud(vector *v){
-    int i;
-    for(i = 0; i < v->vectorList.total; i++){
-        point elem = get_point(v, i);
-        printf("point %d: ( %d ; %d )\n", i, elem.x, elem.y);
-    }
-}
-
-
-
-
-
-
-
-
 vector merger(vector *a, vector *b)
 {
 	// n1 -> number of points in polygon a
@@ -130,14 +108,12 @@ vector merger(vector *a, vector *b)
 	for (int i=1; i<n1; i++)
 		if(get_point(a, i).x > get_point(a, ia).x)
 			ia = i;
-	printf("\nrightmost point in a: a( %d, %d)\n",get_point(a,ia).x,get_point(a,ia).y);
 	
 
 	// ib -> leftmost point of b
 	for (int i=1; i<n2; i++)
 		if (get_point(b,i).x < get_point(b,ib).x)
 			ib=i;
-	printf("\nleftmost point in b: b( %d, %d)\n",get_point(b,ib).x,get_point(b,ib).y);
 	
 
 	// finding the upper tangent
@@ -145,18 +121,15 @@ vector merger(vector *a, vector *b)
 	bool done = 0;
 	while (!done){
 		done = 1;
-		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (inda+1)%n1)) >=0){
+		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (inda+1)%n1)) >=0)
 			inda = (inda + 1) % n1;
-			printf("\ntangent: a( %d, %d)\n",get_point(a,inda).x,get_point(a,inda).y);
-		}
+		
 
 		while (orientation(get_point(a, inda), get_point(b, indb), get_point(b, (n2+indb-1)%n2)) <=0){
 			indb = (n2+indb-1)%n2;
-			printf("\ntangent: b( %d, %d)\n", get_point(b,indb).x, get_point(b,indb).y);
 			done = 0;
 		}
 	}
-	printf("\nDone upper tangent: a( %d, %d) b( %d, %d)\n", get_point(a,inda).x, get_point(a,inda).y,get_point(b,indb).x,get_point(b,indb).y);
 
 	int uppera = inda, upperb = indb;
 	inda = ia, indb=ib;
@@ -173,7 +146,6 @@ vector merger(vector *a, vector *b)
 			done=0;
 		}
 	}
-	printf("\nDone lower tangent: a( %d, %d) b( %d, %d)\n", get_point(a,inda).x, get_point(a,inda).y,get_point(b,indb).x,get_point(b,indb).y);
 
 
 	int lowera = inda, lowerb = indb;
@@ -208,7 +180,6 @@ vector bruteHull(vector *a)
 	// hull otherwise not
     //point* a = (point*)aV;
 	VECTOR_INIT(ret);
-	//printf("\npoint in a: {%d, %d}\n", get_point(a,0).x, get_point(a,0).y);
 	for (int i=0; i<a->vectorList.total; i++)
 	{
 		for (int j=i+1; j<a->vectorList.total; j++)
@@ -235,15 +206,10 @@ vector bruteHull(vector *a)
 				if(hasElement(&ret, get_point(a,j)) == -1){
 					ret.pfVectorAdd(&ret,a->vectorList.items[j]);
 				}
-				//printf("\ncopying in ret\n");
 				
 			}
 		}
 	}
-	//printf("\npoint in ret: {%d, %d}\n", get_point(&ret,0).x, get_point(&ret,0).y);
-
-	//printf("\nDone first part of brute hull\n");
-
 	// Sorting the points in the anti-clockwise order
 	mid.x = 0;
 	mid.y = 0;
@@ -260,9 +226,7 @@ vector bruteHull(vector *a)
 		(*(point*)ret.vectorList.items[i]).x = get_point(&ret,i).x / n;
 		(*(point*)ret.vectorList.items[i]).y = get_point(&ret,i).y / n;
 	}
-	//printf("\nDone second part of brute hull\n");
-	//printf("semi cloud done: \n");
-	//print_cloud(&ret);
+
 	return ret;
 }
 
@@ -288,7 +252,6 @@ vector divide(vector *a)
 	left_hull = divide(&left);
 	right_hull = divide(&right);
 
-	printf("\nDone left and right\n");
 
 	// merging the convex hulls
 	return merger(&left_hull, &right_hull);
