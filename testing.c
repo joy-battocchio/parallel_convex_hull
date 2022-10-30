@@ -32,23 +32,49 @@ void cloud_generator(vector *v, point *c_array){
     }
 }
 
+void cloud_generator_testing(vector *v){
+    int i;
+    for(i = 0; i < CLOUD_SIZE; i++){
+
+        point p = (point){.x = 0, .y = 0};
+
+        int x_c = rand()%CLOUD_WIDTH-(CLOUD_WIDTH/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
+        int y_c = rand()%CLOUD_HEIGHT-(CLOUD_HEIGHT/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
+
+        printf("%d", i);
+        
+        p = (point){.x = x_c, .y = y_c};
+        v->pfVectorAdd(v, &p);
+    }
+}
+
 int main(int argc, char *argv[]){
+
+    srand(time(NULL));   // Initialization, should only be called once.
     
     FILE *fptr_1;
     FILE *fptr_2;
-    fptr_1 = fopen("cloud.txt","w");
-    fptr_2 = fopen("convex_hull.txt","w");
+    //fptr_1 = fopen("cloud.txt","w");
+    //fptr_2 = fopen("convex_hull.txt","w");
 
-    srand(time(NULL));   // Initialization, should only be called once.
-    point cloud_array[CLOUD_SIZE];
+    
+    
+    //point cloud_array[CLOUD_SIZE];
     VECTOR_INIT(cloud);
     VECTOR_INIT(hull);
-    cloud_generator(&cloud, cloud_array);
+    //cloud_generator(&cloud, cloud_array);
+
+    cloud_generator_testing(&cloud);
+    print_cloud(&cloud, NULL);
+
+ 
+    /*
+
     fprintf(fptr_1,"Copy the point as are in the following webapp:\nhttps://planetcalc.com/8576/\n\n");
     print_cloud(&cloud, fptr_1);
 
     //the sorting works, already checked
-	qsort(cloud.vectorList.items, cloud.vectorList.total,sizeof(*cloud.vectorList.items), compareX);
+	qsort(cloud.vectorList.items, cloud.vectorList.total, sizeof(*cloud.vectorList.items), compareX);
     
     hull = divide(&cloud);
     fprintf(fptr_1,"Convex Hull:\n\n");
@@ -59,5 +85,8 @@ int main(int argc, char *argv[]){
     // }
     fclose(fptr_1);
     fclose(fptr_2);
+    
+    */
+
     return 0;
 }
