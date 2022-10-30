@@ -99,8 +99,7 @@ int compareX(const void *p1, const void *q1){
 	return p.x - q.x;
 }
 
-vector merger(vector *a, vector *b)
-{
+vector merger(vector *a, vector *b){
 	// n1 -> number of points in polygon a
 	// n2 -> number of points in polygon b
     // point* a = (point*)aV;
@@ -146,8 +145,7 @@ vector merger(vector *a, vector *b)
 		while (orientation(get_point(a, inda), get_point(b, indb), get_point(b, (indb+1)%n2))>=0)
 			indb=(indb+1)%n2;
 
-		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (n1+inda-1)%n1))<=0)
-		{
+		while (orientation(get_point(b, indb), get_point(a, inda), get_point(a, (n1+inda-1)%n1))<=0){
 			inda=(n1+inda-1)%n1;
 			done=0;
 		}
@@ -214,14 +212,13 @@ vector bruteHull(vector *a)
 	mid.x = 0;
 	mid.y = 0;
 	int n = ret.vectorList.total;
-	for (int i=0; i<n; i++)
-	{
+	for (int i=0; i<n; i++){
 		mid.x += get_point(&ret,i).x;
 		mid.y += get_point(&ret,i).y;
 		(*(point*)ret.vectorList.items[i]).x = get_point(&ret,i).x * n;
 		(*(point*)ret.vectorList.items[i]).y = get_point(&ret,i).y * n;
 	}
-	qsort(ret.vectorList.items, ret.vectorList.total,sizeof(*ret.vectorList.items), compare);
+	qsort(ret.vectorList.items, ret.vectorList.total, sizeof(*ret.vectorList.items), compare);
 	for (int i=0; i<n; i++){
 		(*(point*)ret.vectorList.items[i]).x = get_point(&ret,i).x / n;
 		(*(point*)ret.vectorList.items[i]).y = get_point(&ret,i).y / n;
