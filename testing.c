@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "serial_dei.c"
 
-#define CLOUD_SIZE 100
+#define CLOUD_SIZE 150
 #define CLOUD_WIDTH 1000
 #define CLOUD_HEIGHT 1000
 
@@ -33,19 +33,62 @@ void cloud_generator(vector *v, point *c_array){
 }
 
 void cloud_generator_testing(vector *v){
+    
+    point *test_array = (point*)malloc(sizeof(point)*CLOUD_SIZE);
+
+    //point p;
+    
     int i;
     for(i = 0; i < CLOUD_SIZE; i++){
 
-        point p = (point){.x = 0, .y = 0};
-
-        int x_c = rand()%CLOUD_WIDTH-(CLOUD_WIDTH/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
-        int y_c = rand()%CLOUD_HEIGHT-(CLOUD_HEIGHT/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
-
-        printf("%d", i);
+        int x_c = rand()%CLOUD_WIDTH-(CLOUD_WIDTH/2);     // Returns a pseudo-random integer between 0 and RAND_MAX.
+        int y_c = rand()%CLOUD_HEIGHT-(CLOUD_HEIGHT/2);     // Returns a pseudo-random integer between 0 and RAND_MAX.
         
-        p = (point){.x = x_c, .y = y_c};
-        v->pfVectorAdd(v, &p);
+       
+        //printf("x: %d, y: %d\n", x_c, y_c);
+        //point p = (point){.x = x_c, .y = y_c};
+        //v->pfVectorAdd(v, &p);
+
+        test_array[i] = (point){.x = x_c, .y = y_c}; 
+        v->pfVectorAdd(v, &test_array[i]);
+
+        //printf("x: %d, y: %d\n", x_c, y_c);
+        //p.x = x_c;
+        //p.y = y_c;
+        //v->pfVectorAdd(v, &p);
+
+        //p = (point){.x = x_c, .y = y_c};
+        //v->pfVectorAdd(v, &p);
+
+        //point p = (point){.x = x_c, .y = y_c};
+        //v->pfVectorSet(v, i, &p);
+
+
+
+
     }
+
+    /*
+    int x_test = 663;
+    int y_test = 8764;   
+    point test = (point){.x = x_test, .y = y_test}; 
+    v->pfVectorSet(v, 70, &test);
+
+    int x_test2 = 456;
+    int y_test2 = 777;
+    point test2 = (point){.x = x_test2, .y = y_test2};
+    v->pfVectorSet(v, 65, &test2);
+
+  
+    test_array[0] = (point){.x = 3429, .y = 643};
+    test_array[1] = (point){.x = 109, .y = 176};
+
+    v->pfVectorAdd(v, &test_array[0]);
+    v->pfVectorAdd(v, &test_array[1]);
+
+    */
+
+
 }
 
 int main(int argc, char *argv[]){
@@ -54,22 +97,20 @@ int main(int argc, char *argv[]){
     
     FILE *fptr_1;
     FILE *fptr_2;
-    //fptr_1 = fopen("cloud.txt","w");
-    //fptr_2 = fopen("convex_hull.txt","w");
+    fptr_1 = fopen("cloud.txt","w");
+    fptr_2 = fopen("convex_hull.txt","w");
 
     
     
-    //point cloud_array[CLOUD_SIZE];
+    point cloud_array[CLOUD_SIZE];
     VECTOR_INIT(cloud);
     VECTOR_INIT(hull);
-    //cloud_generator(&cloud, cloud_array);
+    cloud_generator(&cloud, cloud_array);
 
-    cloud_generator_testing(&cloud);
-    print_cloud(&cloud, NULL);
+    //cloud_generator_testing(&cloud);
+    //print_cloud(&cloud, NULL);
 
- 
-    /*
-
+    
     fprintf(fptr_1,"Copy the point as are in the following webapp:\nhttps://planetcalc.com/8576/\n\n");
     print_cloud(&cloud, fptr_1);
 
@@ -77,7 +118,7 @@ int main(int argc, char *argv[]){
 	qsort(cloud.vectorList.items, cloud.vectorList.total, sizeof(*cloud.vectorList.items), compareX);
     
     hull = divide(&cloud);
-    fprintf(fptr_1,"Convex Hull:\n\n");
+    fprintf(fptr_2,"Convex Hull:\n\n");
     print_cloud(&hull, fptr_2);
 
     // for(int i = 0; i < CLOUD_SIZE; i++){
@@ -85,8 +126,6 @@ int main(int argc, char *argv[]){
     // }
     fclose(fptr_1);
     fclose(fptr_2);
-    
-    */
 
     return 0;
 }

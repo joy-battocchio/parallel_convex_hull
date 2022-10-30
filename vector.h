@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define VECTOR_INIT_CAPACITY 6
+#define VECTOR_INIT_CAPACITY 100
 #define UNDEFINE  -1
 #define SUCCESS 0
 #define VECTOR_INIT(vec) vector vec;\
