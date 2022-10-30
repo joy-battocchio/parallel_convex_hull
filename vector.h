@@ -1,3 +1,5 @@
+// Reference for vector implementation in C: https://aticleworld.com/implement-vector-in-c/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,6 +9,7 @@
 #define SUCCESS 0
 #define VECTOR_INIT(vec) vector vec;\
  vector_init(&vec)
+
 //Store and track the stored data
 typedef struct sVectorList
 {
@@ -14,12 +17,13 @@ typedef struct sVectorList
     int capacity;
     int total;
 } sVectorList;
+
 //structure contain the function pointer
 typedef struct sVector vector;
 struct sVector
 {
     sVectorList vectorList;
-//function pointers
+    //function pointers
     int (*pfVectorTotal)(vector *);
     int (*pfVectorResize)(vector *, int);
     int (*pfVectorAdd)(vector *, void *);
@@ -28,6 +32,7 @@ struct sVector
     int (*pfVectorDelete)(vector *, int);
     int (*pfVectorFree)(vector *);
 };
+
 int vectorTotal(vector *v){
     int totalCount = UNDEFINE;
     if(v)
@@ -38,7 +43,7 @@ int vectorTotal(vector *v){
 }
 
 int vectorResize(vector *v, int capacity){
-    int  status = UNDEFINE;
+    int status = UNDEFINE;
     if(v)
     {
         void **items = realloc(v->vectorList.items, sizeof(void *) * capacity);
@@ -53,7 +58,7 @@ int vectorResize(vector *v, int capacity){
 }
 
 int vectorPushBack(vector *v, void *item){
-    int  status = UNDEFINE;
+    int status = UNDEFINE;
     if(v)
     {
         if (v->vectorList.capacity == v->vectorList.total)
@@ -74,7 +79,7 @@ int vectorPushBack(vector *v, void *item){
 }
 
 int vectorSet(vector *v, int index, void *item){
-    int  status = UNDEFINE;
+    int status = UNDEFINE;
     if(v)
     {
         if ((index >= 0) && (index < v->vectorList.total))
@@ -99,7 +104,7 @@ void *vectorGet(vector *v, int index){
 }
 
 int vectorDelete(vector *v, int index){
-    int  status = UNDEFINE;
+    int status = UNDEFINE;
     int i = 0;
     if(v)
     {
@@ -122,7 +127,7 @@ int vectorDelete(vector *v, int index){
 }
 
 int vectorFree(vector *v){
-    int  status = UNDEFINE;
+    int status = UNDEFINE;
     if(v)
     {
         free(v->vectorList.items);

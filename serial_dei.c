@@ -39,7 +39,8 @@ point mid;
 
 point get_point(vector *v, int i){ return *(point*)((v->vectorList.items[i]));}
 
-int hasElement(vector *v, point elem){
+// check if vector has element (point) and returns its position, -1 otherwise
+int hasElement(vector *v, point elem){ 
     int total = v->vectorList.total;
     int i;
     if(v){
@@ -54,6 +55,7 @@ int hasElement(vector *v, point elem){
 	return -1;
 }
 
+// returns the correspondent quadrant (I, II, III, IV) of a given point 
 int quad(point p){
     if(p.x >= 0 && p.y >= 0) return 1;
     if(p.x <= 0 && p.y >= 0) return 2;
@@ -61,6 +63,7 @@ int quad(point p){
     return 4;
 }
 
+// returns the orientatation value (-1 ,0, 1) of 3 given points 
 int orientation(point a, point b, point c){
 	int res = (b.y-a.y)*(c.x-b.x) - (c.y-b.y)*(b.x-a.x);
 	if (res == 0) return 0;
@@ -69,13 +72,14 @@ int orientation(point a, point b, point c){
 }
 
 //compare the points for the sort function by polar angle
-int compare(const void *p1,const void *q1)
-{
+int compare(const void *p1,const void *q1){
 	point* p_pointer = *(point**)p1;
 	point* q_pointer = *(point**)q1;
 
-	point p = {.x = ((point*)p_pointer)->x - mid.x, .y = ((point*)p_pointer)->y - mid.y};
-    point q = {.x = ((point*)q_pointer)->x - mid.x, .y = ((point*)q_pointer)->y - mid.y};
+	point p = {.x = ((point*)p_pointer)->x - mid.x, 
+			   .y = ((point*)p_pointer)->y - mid.y};
+    point q = {.x = ((point*)q_pointer)->x - mid.x, 
+			   .y = ((point*)q_pointer)->y - mid.y};
 	int one = quad(p);
 	int two = quad(q);
 
@@ -88,8 +92,10 @@ int compareX(const void *p1, const void *q1){
 	point* p_pointer = *(point**)p1;
 	point* q_pointer = *(point**)q1;
 
-	point p = {.x = ((point*)p_pointer)->x, .y = ((point*)p_pointer)->y};
-    point q = {.x = ((point*)q_pointer)->x, .y = ((point*)q_pointer)->y};
+	point p = {.x = ((point*)p_pointer)->x, 
+			   .y = ((point*)p_pointer)->y};
+    point q = {.x = ((point*)q_pointer)->x, 
+			   .y = ((point*)q_pointer)->y};
 	return p.x - q.x;
 }
 
@@ -155,16 +161,14 @@ vector merger(vector *a, vector *b)
 	//with the points sorted in anti-clockwise order
 	int ind = uppera;
 	ret.pfVectorAdd(&ret, a->vectorList.items[uppera]);
-	while (ind != lowera)
-	{
+	while (ind != lowera){
 		ind = (ind+1)%n1;
 		ret.pfVectorAdd(&ret, a->vectorList.items[ind]);
 	}
 
 	ind = lowerb;
 	ret.pfVectorAdd(&ret, b->vectorList.items[lowerb]);
-	while (ind != upperb)
-	{
+	while (ind != upperb){
 		ind = (ind+1)%n2;
 		ret.pfVectorAdd(&ret, b->vectorList.items[ind]);
 	}
@@ -180,10 +184,8 @@ vector bruteHull(vector *a)
 	// hull otherwise not
     //point* a = (point*)aV;
 	VECTOR_INIT(ret);
-	for (int i=0; i<a->vectorList.total; i++)
-	{
-		for (int j=i+1; j<a->vectorList.total; j++)
-		{
+	for (int i=0; i<a->vectorList.total; i++){
+		for (int j=i+1; j<a->vectorList.total; j++){
 			int x1 = get_point(a,i).x, x2 = get_point(a,j).x;
 			int y1 = get_point(a,i).y, y2 = get_point(a,j).y;
 
@@ -191,15 +193,13 @@ vector bruteHull(vector *a)
 			int b1 = x2-x1;
 			int c1 = x1*y2-y1*x2;
 			int pos = 0, neg = 0;
-			for (int k=0; k<a->vectorList.total; k++)
-			{
+			for (int k=0; k<a->vectorList.total; k++){
 				if (a1*get_point(a,k).x+b1*get_point(a,k).y+c1 <= 0)
 					neg++;
 				if (a1*get_point(a,k).x+b1*get_point(a,k).y+c1 >= 0)
 					pos++;
 			}
-			if (pos == a->vectorList.total || neg == a->vectorList.total)
-			{
+			if (pos == a->vectorList.total || neg == a->vectorList.total){
 				if(hasElement(&ret, get_point(a,i)) == -1){
 					ret.pfVectorAdd(&ret,a->vectorList.items[i]);
 				}
@@ -230,8 +230,7 @@ vector bruteHull(vector *a)
 	return ret;
 }
 
-vector divide(vector *a)
-{
+vector divide(vector *a){
 	// If the number of points is less than 6 then the
 	// function uses the brute algorithm to find the
 	// convex hull
@@ -251,7 +250,6 @@ vector divide(vector *a)
 	VECTOR_INIT(right_hull);
 	left_hull = divide(&left);
 	right_hull = divide(&right);
-
 
 	// merging the convex hulls
 	return merger(&left_hull, &right_hull);
