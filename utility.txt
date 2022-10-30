@@ -1,0 +1,13 @@
+Compiling the source code manually:
+
+Flags:
+# -std=c99:             Compile in c99 mode
+# -c:                   Only compiling, not linking, therefore can compile also files without main()
+# -g:                   Produces debugging information in the operating system’s native format
+# -Werror:              Convert compile-time warnings into errors
+# -Wall:                Enable all warnings
+# -fstack-protector:    Check for buffer overflows during compilation
+
+Examples:
+gcc -std=c99 -c -g -Werror -Wall -fstack-protector serial_dei.c -o serial_dei
+gcc -std=c99 -g -Werror -Wall -fstack-protector testing.c -o testing
