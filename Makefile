@@ -6,12 +6,15 @@ OBJ = testing.o
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-default: testing
+all: testing
 
 testing: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
+run: testing
+	./testing
+
 .PHONY: clean
 
 clean:
-	rm -f *.o *~
+	rm -f *.o *~ testing
