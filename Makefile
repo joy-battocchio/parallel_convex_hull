@@ -1,20 +1,20 @@
-CC = gcc
+CC = mpicc
 CFLAGS = -std=c99 -g -Wall -fstack-protector -I.
-DEPS = vector.h serial_dei.c
-OBJ = testing.o
+DEPS = convex_hull.h
+OBJ = parallel_test.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: testing
+all: parallel_test
 
-testing: $(OBJ)
+parallel_test: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-run: testing
-	./testing
+run: parallel_test
+	./parallel_test
 
 .PHONY: clean
 
 clean:
-	rm -f *.o *~ testing
+	rm -f *.o *~ parallel_test
