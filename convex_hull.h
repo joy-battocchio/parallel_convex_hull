@@ -3,10 +3,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define CLOUD_SIZE 1024
+#define CLOUD_SIZE 205
 //this seems to be the highest value for the cloud width and height
-#define CLOUD_WIDTH 100000
-#define CLOUD_HEIGHT 100000
+// #define CLOUD_WIDTH 10000000
+// #define CLOUD_HEIGHT 10000000
+const int CLOUD_WIDTH = 10000000;
+const int CLOUD_HEIGHT = 10000000;
 
 typedef struct {
     int x;
@@ -41,7 +43,7 @@ int quad(point p){
 
 // returns the orientatation value (-1 ,0, 1) of 3 given points 
 int orientation(point a, point b, point c){
-	int res = (b.y-a.y)*(c.x-b.x) - (c.y-b.y)*(b.x-a.x);
+	long res = (long)(b.y-a.y)*(long)(c.x-b.x) - (long)(c.y-b.y)*(long)(b.x-a.x);
 	if (res == 0) return 0;
 	if (res > 0) return 1;
 	return -1;
@@ -128,9 +130,9 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull){
 	//finding the lower tangent
 	while (!done){
 		done = 1;
-		while (orientation(a[inda], b[indb], b[(indb+1)%b_sz])>=0)
+		while (orientation(a[inda], b[indb], b[(indb+1)%b_sz])>=0){
 			indb=(indb+1)%b_sz;
-
+		}
 		while (orientation(b[indb], a[inda], a[(a_sz+inda-1)%a_sz])<=0){
 			inda=(a_sz+inda-1)%a_sz;
 			done=0;
@@ -182,9 +184,10 @@ int bruteHull(point *cloud, int size, point *cx_hull){
 			int x1 = cloud[i].x, x2 = cloud[j].x;
 			int y1 = cloud[i].y, y2 = cloud[j].y;
 
-			int a1 = y1-y2;
-			int b1 = x2-x1;
-			int c1 = x1*y2-y1*x2;
+			long long a1 = y1-y2;
+			long long b1 = x2-x1;
+			//HERE IS THE PROBLEM
+			long long c1 = (long long)x1*(long long)y2-(long long)(y1)*(long long)x2;
 			int pos = 0, neg = 0;
 			for (int k=0; k<size; k++){
 				if (a1*cloud[k].x+b1*cloud[k].y+c1 <= 0)
@@ -231,6 +234,7 @@ int divide(point *cloud, int size, point *cx_hull){
 	// If the number of points is less than 6 then the
 	// function uses the brute algorithm to find the
 	// convex hull
+	//printf("It does not arrive here");
     int lh_size = size/2;
     int rh_size = size/2 + size%2;
 	if (size <= 5) return bruteHull(cloud, size, cx_hull);
@@ -248,25 +252,24 @@ int divide(point *cloud, int size, point *cx_hull){
     point right_hull[rh_size];
 	lh_size = divide(left,lh_size, left_hull);
 	rh_size = divide(right, rh_size, right_hull);
-	
 	// merging the convex hulls
 	return merger(left_hull, lh_size, right_hull, rh_size, cx_hull);
 }
 
 void print_cloud(point *cloud,int size, FILE *ptr){
     int i;
-    // if(ptr != NULL){
-    //     for(i = 0; i < size; i++){
-    //         point elem = cloud[i];
-    //         fprintf(ptr,"%d;%d\n",elem.x, elem.y);
-    //     }
-    // }else{
+    if(ptr != NULL){
+        for(i = 0; i < size; i++){
+            point elem = cloud[i];
+            fprintf(ptr,"%d;%d\n",elem.x, elem.y);
+        }
+    }else{
         for(i = 0; i < size; i++){
             point elem = cloud[i];
 			printf("%d;%d\n",elem.x, elem.y);
         }
 		printf("____________________________\n\n");
-    //}
+    }
 }
 
 
@@ -281,11 +284,13 @@ void cloud_generator(point *cloud){
 		// int x_c = rand()%CLOUD_WIDTH-(CLOUD_WIDTH/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         // int y_c = rand()%CLOUD_HEIGHT-(CLOUD_HEIGHT/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         // cloud[i] = (point){.x = x_c, .y = y_c};
-		int max_width = rand()%CLOUD_WIDTH;
-		int max_height = rand()%CLOUD_HEIGHT;
+		int max_width = rand()%CLOUD_WIDTH+1;
+		int max_height = rand()%CLOUD_HEIGHT+1;
+        //printf("i: %d    %d, %d\n",i, max_width, max_height);
+
         int x_c = rand()%max_width*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         int y_c = rand()%max_height*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
-        cloud[i] = (point){.x = x_c, .y = y_c};
+		cloud[i] = (point){.x = x_c, .y = y_c};
     }
 }
 
