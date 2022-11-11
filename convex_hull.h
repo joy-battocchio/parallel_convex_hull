@@ -3,16 +3,16 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define CLOUD_SIZE 205
+#define CLOUD_SIZE 1000
 //this seems to be the highest value for the cloud width and height
 // #define CLOUD_WIDTH 10000000
 // #define CLOUD_HEIGHT 10000000
-const int CLOUD_WIDTH = 10000000;
-const int CLOUD_HEIGHT = 10000000;
+const int CLOUD_WIDTH = 1000000000;
+const int CLOUD_HEIGHT = 1000000000;
 
 typedef struct {
-    int x;
-    int y;
+    long long x;
+    long long y;
 } point;
 
 point mid;
@@ -41,9 +41,9 @@ int quad(point p){
     return 4;
 }
 
-// returns the orientatation value (-1 ,0, 1) of 3 given points 
+// returns the orientation value (-1 ,0, 1) of 3 given points 
 int orientation(point a, point b, point c){
-	long res = (long)(b.y-a.y)*(long)(c.x-b.x) - (long)(c.y-b.y)*(long)(b.x-a.x);
+	long long res = (b.y-a.y)*(c.x-b.x) - (c.y-b.y)*(b.x-a.x);
 	if (res == 0) return 0;
 	if (res > 0) return 1;
 	return -1;
@@ -181,13 +181,13 @@ int bruteHull(point *cloud, int size, point *cx_hull){
 	int hull_size = 0;
 	for (int i=0; i<size; i++){
 		for (int j=i+1; j<size; j++){
-			int x1 = cloud[i].x, x2 = cloud[j].x;
-			int y1 = cloud[i].y, y2 = cloud[j].y;
+			long long x1 = cloud[i].x, x2 = cloud[j].x;
+			long long y1 = cloud[i].y, y2 = cloud[j].y;
 
 			long long a1 = y1-y2;
 			long long b1 = x2-x1;
 			//HERE IS THE PROBLEM
-			long long c1 = (long long)x1*(long long)y2-(long long)(y1)*(long long)x2;
+			long long c1 = x1*y2-y1*x2;
 			int pos = 0, neg = 0;
 			for (int k=0; k<size; k++){
 				if (a1*cloud[k].x+b1*cloud[k].y+c1 <= 0)
@@ -261,12 +261,12 @@ void print_cloud(point *cloud,int size, FILE *ptr){
     if(ptr != NULL){
         for(i = 0; i < size; i++){
             point elem = cloud[i];
-            fprintf(ptr,"%d;%d\n",elem.x, elem.y);
+            fprintf(ptr,"%lld;%lld\n",elem.x, elem.y);
         }
     }else{
         for(i = 0; i < size; i++){
             point elem = cloud[i];
-			printf("%d;%d\n",elem.x, elem.y);
+			printf("%lld;%lld\n",elem.x, elem.y);
         }
 		printf("____________________________\n\n");
     }
