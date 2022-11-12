@@ -7,8 +7,8 @@
 //this seems to be the highest value for the cloud width and height
 // #define CLOUD_WIDTH 10000000
 // #define CLOUD_HEIGHT 10000000
-const int CLOUD_WIDTH = 1000000000;
-const int CLOUD_HEIGHT = 1000000000;
+const int CLOUD_WIDTH = 100000000;
+const int CLOUD_HEIGHT = 100000000;
 
 typedef struct {
     long long x;

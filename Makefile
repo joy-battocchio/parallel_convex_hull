@@ -5,8 +5,11 @@ DEPS = convex_hull.h
 OBJ = parallel_test.o
 OBJ2 = serial_test.o
 
-%.o: %.c $(DEPS)
+parallel_test.o: parallel_test.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
+
+serial_test.o: serial_test.c $(DEPS)
+	$(CC2) -c -o $@ $< $(CFLAGS)
 
 all: parallel_test
 
@@ -23,6 +26,12 @@ run_parallel: parallel_test
 
 run_serial: serial_test
 	./serial_test
+
+sub_parallel: 
+	qsub parallel_test.sh
+
+sub_serial: 
+	qsub serial_test.sh
 
 .PHONY: clean
 

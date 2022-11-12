@@ -16,13 +16,15 @@ int main(void) {
     point cloud[CLOUD_SIZE];
     point convex_hull[CLOUD_SIZE];
     cloud_generator(cloud);
-    fprintf(fptr_1,"Copy the point as are in the following webapp:\nhttps://planetcalc.com/8576/\n\n");
+    //fprintf(fptr_1,"Copy the point as are in the following webapp:\nhttps://planetcalc.com/8576/\n\n");
 
-    print_cloud(cloud,CLOUD_SIZE, fptr_1);
+    //print_cloud(cloud,CLOUD_SIZE, fptr_1);
+    print_cloud(cloud,CLOUD_SIZE, NULL);
     qsort(cloud, CLOUD_SIZE, sizeof(point), compareX);
     
     int hull_size = divide(cloud,CLOUD_SIZE,convex_hull);
-    print_cloud(convex_hull, hull_size, fptr_2);
+    //print_cloud(convex_hull, hull_size, fptr_2);
+    print_cloud(convex_hull, hull_size, NULL);
     fclose(fptr_1);
     fclose(fptr_2);
     return 0;

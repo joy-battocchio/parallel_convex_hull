@@ -10,7 +10,7 @@
 void defineStruct(MPI_Datatype *tstype) {
     //const int count = 2;
     int blocklens[2] = {1,1};
-    MPI_Datatype types[2] = {MPI_INT, MPI_INT};
+    MPI_Datatype types[2] = {MPI_LONG_LONG, MPI_LONG_LONG};
     MPI_Aint     disps[2] = {offsetof(point,x), offsetof(point,y)};
 
     MPI_Type_create_struct(2, blocklens, disps, types, tstype);
@@ -42,7 +42,7 @@ int main(void) {
         srand(time(NULL));   // Initialization, should only be called once.
         cloud_generator(cloud);
         qsort(cloud, CLOUD_SIZE, sizeof(point), compareX);
-        print_cloud(cloud,CLOUD_SIZE,NULL);
+        print_cloud(cloud, CLOUD_SIZE, NULL);
     }
     if(my_rank == comm_sz-1){
         start_time = MPI_Wtime();
@@ -85,7 +85,7 @@ int main(void) {
                 MPI_Recv(&ready, 1, MPI_INT, my_rank+(int)pow(2,i-1), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
             MPI_Send(convex_hull, fragment_sz+1, MPI_point, my_rank+(int)pow(2,i-1), 0, MPI_COMM_WORLD);
-            //printf("step: %d    sender: %d to %d hull of size %d\n",i, my_rank, my_rank+(int)pow(2,i-1), convex_hull[fragment_sz].x);
+            printf("step: %d    sender: %d to %d hull of size %lld\n",i, my_rank, my_rank+(int)pow(2,i-1), convex_hull[fragment_sz].x);
             break;
         }
         fragment_sz *= 2;
