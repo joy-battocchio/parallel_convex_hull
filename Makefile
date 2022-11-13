@@ -37,3 +37,5 @@ sub_serial:
 
 clean:
 	rm -f *.o *.o* *.e* *~ parallel_test serial_test
+	rm -r output
+	mkdir output

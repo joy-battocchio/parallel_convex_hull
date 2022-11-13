@@ -6,12 +6,12 @@
 #include <omp.h>
 #endif
 
-#define CLOUD_SIZE 1000
+
 //this seems to be the highest value for the cloud width and height
 // #define CLOUD_WIDTH 10000000
 // #define CLOUD_HEIGHT 10000000
-const int CLOUD_WIDTH = 100000000;
-const int CLOUD_HEIGHT = 100000000;
+const int CLOUD_WIDTH = 1000000000;
+const int CLOUD_HEIGHT = 1000000000;
 
 typedef struct {
     long long x;
@@ -90,7 +90,7 @@ int compareX(const void *p1, const void *q1){
 ######DONE######
 
 */
-int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull){
+int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	// n1 -> number of points in polygon a
 	// n2 -> number of points in polygon b
     // point* a = (point*)aV;
@@ -99,7 +99,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull){
 	//qsort(b, b_sz, sizeof(point), compareX);
 
 	//int thread_count = 4;
-
+	fprintf(fptr, "START_MERGER\n");
 	int ia = 0, ib = 0;
 
 	/*
@@ -178,21 +178,26 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull){
 	//with the points sorted in anti-clockwise order
 	int ind = uppera;
     cx_hull[hull_size] = a[uppera];
+	fprintf(fptr, "%lld;%lld\n", a[uppera].x, a[uppera].y);
     hull_size++; 
 	while (ind != lowera){
 		ind = (ind+1)%a_sz;
         cx_hull[hull_size] = a[ind];
+		fprintf(fptr, "%lld;%lld\n", a[ind].x, a[ind].y);
         hull_size++;
 	}
 
 	ind = lowerb;
     cx_hull[hull_size] = b[lowerb];
+	fprintf(fptr, "%lld;%lld\n", b[lowerb].x, b[lowerb].y);
     hull_size++; 
 	while (ind != upperb){
 		ind = (ind+1)%b_sz;
         cx_hull[hull_size] = b[ind];
+		fprintf(fptr, "%lld;%lld\n", b[ind].x, b[ind].y);
         hull_size++;
 	}
+	fprintf(fptr, "END_MERGER\n");
 	return hull_size;
 }
 
@@ -202,19 +207,20 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull){
 ######DONE######
 
 */
-int bruteHull(point *cloud, int size, point *cx_hull){
+int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
 	// Take any pair of points from the set and check
 	// whether it is the edge of the convex hull or not.
 	// if all the remaining points are on the same side
 	// of the line then the line is the edge of convex
 	// hull otherwise not
     //point* a = (point*)aV;
+	fprintf(fptr, "START_BH\n");
 	int hull_size = 0;
 	for (int i=0; i<size; i++){
 		for (int j=i+1; j<size; j++){
 			long long x1 = cloud[i].x, x2 = cloud[j].x;
 			long long y1 = cloud[i].y, y2 = cloud[j].y;
-
+			
 			long long a1 = y1-y2;
 			long long b1 = x2-x1;
 			//HERE IS THE PROBLEM
@@ -229,12 +235,14 @@ int bruteHull(point *cloud, int size, point *cx_hull){
 			if (pos == size || neg == size){
 				if(hasElement(cx_hull, hull_size, cloud[i]) == -1){
 					cx_hull[hull_size] = cloud[i];
-                    hull_size++;
+					hull_size++;
 				}
 				if(hasElement(cx_hull, hull_size, cloud[j]) == -1){
                     cx_hull[hull_size] = cloud[j];
-                    hull_size++;
+					hull_size++;
 				}
+				fprintf(fptr, "%lld;%lld ",cloud[i].x, cloud[i].y);
+				fprintf(fptr, "%lld;%lld\n",cloud[j].x, cloud[j].y);
 			}
 		}
 	}
@@ -252,6 +260,7 @@ int bruteHull(point *cloud, int size, point *cx_hull){
         cx_hull[i].x /= hull_size;
         cx_hull[i].y /= hull_size;
 	}
+	fprintf(fptr, "END_BH\n");
 	return hull_size;
 }
 
@@ -261,30 +270,30 @@ int bruteHull(point *cloud, int size, point *cx_hull){
 
 */
 //already translated into only array for parallel implementation
-int divide(point *cloud, int size, point *cx_hull){
+int divide(point *cloud, int size, point *cx_hull, FILE *fptr){
 	// If the number of points is less than 6 then the
 	// function uses the brute algorithm to find the
 	// convex hull
 	//printf("It does not arrive here");
     int lh_size = size/2;
     int rh_size = size/2 + size%2;
-	if (size <= 5) return bruteHull(cloud, size, cx_hull);
+	if (size <= 5) return bruteHull(cloud, size, cx_hull, fptr);
 
 	// left contains the left half points
 	// right contains the right half points
     point left[lh_size];
     point right[rh_size];
-	for (int i=0; i<lh_size; i++)
+	for (int i=0; i<lh_size; i++) //thread
 		left[i] = cloud[i];
-	for (int i=0; i<rh_size; i++)
+	for (int i=0; i<rh_size; i++)  //thread
 		right[i] = cloud[i+lh_size];
 	// convex hull for the left and right sets
     point left_hull[lh_size];
     point right_hull[rh_size];
-	lh_size = divide(left,lh_size, left_hull);
-	rh_size = divide(right, rh_size, right_hull);
+	lh_size = divide(left,lh_size, left_hull, fptr);
+	rh_size = divide(right, rh_size, right_hull, fptr);
 	// merging the convex hulls
-	return merger(left_hull, lh_size, right_hull, rh_size, cx_hull);
+	return merger(left_hull, lh_size, right_hull, rh_size, cx_hull, fptr);
 }
 
 void print_cloud(point *cloud,int size, FILE *ptr){
@@ -309,9 +318,9 @@ void print_cloud(point *cloud,int size, FILE *ptr){
 ######DONE######
 
 */
-void cloud_generator(point *cloud){
+void cloud_generator(point *cloud, int cloud_size){
     int i;
-    for(i = 0; i < CLOUD_SIZE; i++){
+    for(i = 0; i < cloud_size; i++){
 		// int x_c = rand()%CLOUD_WIDTH-(CLOUD_WIDTH/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         // int y_c = rand()%CLOUD_HEIGHT-(CLOUD_HEIGHT/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         // cloud[i] = (point){.x = x_c, .y = y_c};
