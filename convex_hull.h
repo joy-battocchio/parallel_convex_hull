@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #define CLOUD_SIZE 1000
 //this seems to be the highest value for the cloud width and height
@@ -95,19 +98,47 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull){
 	//qsort(a, a_sz, sizeof(point), compareX);
 	//qsort(b, b_sz, sizeof(point), compareX);
 
+	//int thread_count = 4;
+
 	int ia = 0, ib = 0;
 
-    // ia -> rightmost point of a
-	for (int i=1; i<a_sz; i++)
-		if(a[i].x > a[ia].x)
-			ia = i;
+	/*
 	
+	# pragma omp parallel num_threads(thread_count) \
+	default(none) private(i) shared(a_sz, b_sz, a, b, ia, ib)
+    {
+		# pragma omp for
+		// ia -> rightmost point of a
+		for (int i=1; i<a_sz; i++){
+			if(a[i].x > a[ia].x){
+				# pragma omp critical 
+				ia = i;
+			}		
+		}
+		
+		# pragma omp for
+		// ib -> leftmost point of b
+		for (int i=1; i<b_sz; i++)
+			if (b[i].x < b[ib].x)
+				# pragma omp critical
+				ib=i;
+		
+	}
+
+	*/
+
+	// ia -> rightmost point of a
+	for (int i=1; i<a_sz; i++){
+		if(a[i].x > a[ia].x){ 
+			ia = i;
+		}		
+	}
 
 	// ib -> leftmost point of b
 	for (int i=1; i<b_sz; i++)
 		if (b[i].x < b[ib].x)
 			ib=i;
-	
+
 
 	// finding the upper tangent
 	int inda = ia, indb = ib;

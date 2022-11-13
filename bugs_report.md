@@ -26,3 +26,11 @@ point 70: ( 0 ; 8764 )
 ---------
 
 
+
+points with negative x:             always correct
+first 1/2 points with positive x:   always correct
+points here in the middle:          wrong
+last 1/2 points with positive x:    always correct
+
+
+

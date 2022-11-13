@@ -58,10 +58,7 @@ int main(void) {
         //     3   -   7
         //             7
         if((my_rank+1) % (int)pow(2,i) == 0){
-            int ready = 43;
-            if(i > 1){
-                MPI_Send(&ready, 1, MPI_INT, my_rank-(int)pow(2,i-1), 0, MPI_COMM_WORLD);
-            }
+
             //convex hull recieved from process #
             point convex_hull_rcvd[fragment_sz+1];
             //convex hull where to save the result of merging
@@ -80,11 +77,8 @@ int main(void) {
             //Best way I could find to send the actual size in the same message
             //Problem is I need to send a much bigger object then hull_size
             convex_hull[fragment_sz] = (point){.x = hull_size, .y = 0};
-            int ready;
-            if(i > 1){
-                MPI_Recv(&ready, 1, MPI_INT, my_rank+(int)pow(2,i-1), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            }
-            MPI_Send(convex_hull, fragment_sz+1, MPI_point, my_rank+(int)pow(2,i-1), 0, MPI_COMM_WORLD);
+
+            MPI_Ssend(convex_hull, fragment_sz+1, MPI_point, my_rank+(int)pow(2,i-1), 0, MPI_COMM_WORLD);
             printf("step: %d    sender: %d to %d hull of size %lld\n",i, my_rank, my_rank+(int)pow(2,i-1), convex_hull[fragment_sz].x);
             break;
         }
