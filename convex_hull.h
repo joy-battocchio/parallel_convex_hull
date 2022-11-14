@@ -100,6 +100,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 
 	//int thread_count = 4;
 	fprintf(fptr, "START_MERGER\n");
+	fprintf(fptr, "%d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
 
 	/*

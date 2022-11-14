@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stddef.h>
-#include <string.h>
 #include <math.h>
 #include <mpi.h>
 #include "convex_hull.h"
@@ -27,37 +26,21 @@ int main(int argc, char *argv[]) {
     double end_time;
     double interval;
 
-    int cloud_size = atoi(argv[2]);
-    char *path = argv[1];
-    FILE *fptr;
-    char buf[strlen(path)+20];  
-
-
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-
-    printf("%s_%d.txt\n", path, my_rank);
-    snprintf(buf, strlen(path)+20, "%s%d.txt", path, my_rank);
-    printf("buf: %s", buf);
-
-    fptr = fopen(buf,"w");
-
-
     //type point to use in mpi communications
     MPI_Datatype MPI_point;
     defineStruct(&MPI_point);
-    
-    printf("comm_sz: %d\n", comm_sz);
+     
     int fragment_sz = cloud_size/(comm_sz);
-    printf("my_rank: %d, fragment_sz: %d\n", my_rank, fragment_sz);
     point cloud[cloud_size];
     //cloud_size is big, find another way?
     point convex_hull[cloud_size];
     point cloud_fragment[fragment_sz];
     if(my_rank == 0){
         srand(time(NULL));   // Initialization, should only be called once.
-        cloud_generator(cloud, cloud_size);
+        cloud_generator(cloud);
         qsort(cloud, cloud_size, sizeof(point), compareX);
         print_cloud(cloud, cloud_size, NULL);
     }
@@ -66,7 +49,7 @@ int main(int argc, char *argv[]) {
     }
     MPI_Scatter( cloud , fragment_sz , MPI_point, cloud_fragment , fragment_sz , MPI_point , 0 , MPI_COMM_WORLD);
     int hull_size;
-    hull_size = divide(cloud_fragment, fragment_sz,convex_hull, fptr);
+    hull_size = divide(cloud_fragment, fragment_sz,convex_hull);
     int step = (int)log2(comm_sz);
     int i;
     for(i = 1; i <= step; i++){
@@ -82,8 +65,7 @@ int main(int argc, char *argv[]) {
             point convex_hull_merged[fragment_sz*2];
             MPI_Recv(convex_hull_rcvd, fragment_sz+1, MPI_point, my_rank-(int)pow(2,i-1), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             
-            fprintf(fptr, "START_PROCESS_MERGER");
-            hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged, fptr);
+            hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged);
             //save the merged one to the normal one in order to send or merge again in next step
             memcpy(convex_hull, convex_hull_merged, hull_size*sizeof(point));
         }
