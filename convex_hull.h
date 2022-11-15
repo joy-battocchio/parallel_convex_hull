@@ -100,7 +100,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 
 	//int thread_count = 4;
 	fprintf(fptr, "START_MERGER\n");
-	fprintf(fptr, "%d\n",a_sz+b_sz);
+	fprintf(fptr, "# %d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
 
 	/*
@@ -179,23 +179,22 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	//with the points sorted in anti-clockwise order
 	int ind = uppera;
     cx_hull[hull_size] = a[uppera];
-	fprintf(fptr, "%lld;%lld\n", a[uppera].x, a[uppera].y);
     hull_size++; 
 	while (ind != lowera){
 		ind = (ind+1)%a_sz;
         cx_hull[hull_size] = a[ind];
-		fprintf(fptr, "%lld;%lld\n", a[ind].x, a[ind].y);
+		fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, a[ind].x, a[ind].y);
         hull_size++;
 	}
 
 	ind = lowerb;
     cx_hull[hull_size] = b[lowerb];
-	fprintf(fptr, "%lld;%lld\n", b[lowerb].x, b[lowerb].y);
+	fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[hull_size].x, cx_hull[hull_size].y);
     hull_size++; 
 	while (ind != upperb){
 		ind = (ind+1)%b_sz;
         cx_hull[hull_size] = b[ind];
-		fprintf(fptr, "%lld;%lld\n", b[ind].x, b[ind].y);
+		fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
         hull_size++;
 	}
 	fprintf(fptr, "END_MERGER\n");
