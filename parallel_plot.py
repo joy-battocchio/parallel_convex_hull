@@ -19,7 +19,7 @@ class Process():
         self.segments = []
         self.step = 0
 
-pause = 0.1
+pause = 0.2
 
 path = "output/"
 p_list = []
