@@ -103,11 +103,17 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	fprintf(fptr, "# %d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
 
-	/*
+	//int thread_count = 1;
 	
-	# pragma omp parallel num_threads(thread_count) \
-	default(none) private(i) shared(a_sz, b_sz, a, b, ia, ib)
+	/*
+	#ifdef _OPENMP
+	# pragma omp parallel  \
+	default(none) shared(a_sz, b_sz, a, b, ia, ib)
     {
+		int thread_num = omp_get_thread_num();
+		int real_thread_count = omp_get_num_threads();
+		printf("Thread n:%d of %d starting to work\n", thread_num, real_thread_count);
+		
 		# pragma omp for
 		// ia -> rightmost point of a
 		for (int i=1; i<a_sz; i++){
@@ -125,7 +131,6 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 				ib=i;
 		
 	}
-
 	*/
 
 	// ia -> rightmost point of a
@@ -134,11 +139,15 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 			ia = i;
 		}		
 	}
-
+	
 	// ib -> leftmost point of b
 	for (int i=1; i<b_sz; i++)
 		if (b[i].x < b[ib].x)
 			ib=i;
+	
+
+
+	
 
 
 	// finding the upper tangent

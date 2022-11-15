@@ -54,10 +54,14 @@ int main(int argc, char *argv[]) {
     point convex_hull[cloud_size];
     point cloud_fragment[fragment_sz];
     if(my_rank == 0){
+        FILE *fptr_cloud;
+        char buf_cloud[strlen(path)+20]; 
+        snprintf(buf_cloud, strlen(path)+20, "%scloud.txt", path);
+        fptr_cloud = fopen(buf_cloud,"w");
         srand(time(NULL));   // Initialization, should only be called once.
         cloud_generator(cloud, cloud_size);
         qsort(cloud, cloud_size, sizeof(point), compareX);
-        print_cloud(cloud, cloud_size, NULL);
+        print_cloud(cloud, cloud_size, fptr_cloud);
     }
     if(my_rank == comm_sz-1){
         start_time = MPI_Wtime();
@@ -65,6 +69,7 @@ int main(int argc, char *argv[]) {
     MPI_Scatter( cloud , fragment_sz , MPI_point, cloud_fragment , fragment_sz , MPI_point , 0 , MPI_COMM_WORLD);
     int hull_size;
     hull_size = divide(cloud_fragment, fragment_sz,convex_hull, fptr);
+    fprintf(fptr, "###");
     int step = (int)log2(comm_sz);
     int i;
     for(i = 1; i <= step; i++){
@@ -82,6 +87,7 @@ int main(int argc, char *argv[]) {
             
             fprintf(fptr, "START_PROCESS_MERGER");
             hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged, fptr);
+            fprintf(fptr, "###");
             //save the merged one to the normal one in order to send or merge again in next step
             memcpy(convex_hull, convex_hull_merged, hull_size*sizeof(point));
         }
