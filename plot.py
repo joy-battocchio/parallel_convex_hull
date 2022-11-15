@@ -5,7 +5,7 @@ import matplotlib.animation as animation
 import time
 
 pause = 0.02
-
+p_size = 10
 class Point():
     def __init__(self, x, y):
         self.x = x
@@ -32,11 +32,12 @@ for line in lines_hull:
 
 X_cloud = [point.x for point in cloud]
 Y_cloud = [point.y for point in cloud]
+p_sizes = [p_size for point in cloud]
 X_hull = [point.x for point in convex_hull]
 Y_hull = [point.y for point in convex_hull]
 plt.ion()
 fig = plt.figure(figsize = (8,8))
-plt.scatter(X_cloud, Y_cloud,zorder = 2)
+plt.scatter(X_cloud, Y_cloud,zorder = 2, s = p_sizes)
 plt.pause(1)
 
 # time.sleep(10)
