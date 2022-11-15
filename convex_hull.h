@@ -156,6 +156,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		if (b[i].x < b[ib].x)
 			ib=i;
 	
+
 	
 
 
@@ -218,6 +219,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
         hull_size++;
 	}
+	fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[0].x, cx_hull[0].y);
 	fprintf(fptr, "END_MERGER\n");
 	return hull_size;
 }
