@@ -103,27 +103,26 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	fprintf(fptr, "# %d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
 
-	int custom_thread_count = 2;
+	int custom_thread_count = 4;
 	
-	/*
+	
 	#ifdef _OPENMP
-	# pragma omp parallel num_threads(custom_thread_count) 
-	default(none) shared(a_sz, b_sz, a, b, ia, ib)
+	# pragma omp parallel num_threads(custom_thread_count) \
+	//default(none) shared(a_sz, b_sz, a, b, ia, ib)
     {
 		int thread_num = omp_get_thread_num();
 		int real_thread_count = omp_get_num_threads();
 		int cpu_num = sched_getcpu();
-		printf("Thread n:%d of (%d) of %d CPU, is starting to work\n", thread_num, real_thread_count);
+		printf("[MERGER] Thread n:%d of (%d) of %d CPU, is starting to work\n", thread_num, real_thread_count, cpu_num);
 		
 		# pragma omp for
-		// ia -> rightmost point of a
 		for (int i=1; i<a_sz; i++){
-			printf("Thread n:%d of (%d) of %d CPU, is in first for\n", thread_num, real_thread_count, cpu_num);
+			printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in first for\n", thread_num, real_thread_count, cpu_num);
 			if(a[i].x > a[ia].x){
 				# pragma omp critical 
 				{
-					printf("Thread n:%d of (%d) of %d CPU, is in IF of first for\n", thread_num, real_thread_count, cpu_num);
-					ia = i;
+					printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in IF of first for\n", thread_num, real_thread_count, cpu_num);
+					ia = i; // ia -> rightmost point of a
 				}
 
 			}		
@@ -132,41 +131,37 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		# pragma omp barrier
 		
 		# pragma omp for
-		// ib -> leftmost point of b
 		for (int i=1; i<b_sz; i++){
-			printf("Thread n:%d of (%d) of %d CPU, is in second for\n", thread_num, real_thread_count, cpu_num);
+			printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in second for\n", thread_num, real_thread_count, cpu_num);
 			if (b[i].x < b[ib].x){
 				# pragma omp critical
 				{
-					printf("Thread n:%d of (%d) of %d CPU, is in IF of second for\n", thread_num, real_thread_count, cpu_num);
-					ib=i;
+					printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in IF of second for\n", thread_num, real_thread_count, cpu_num);
+					ib=i; // ib -> leftmost point of b
 				}
 			}
 		}
 		
 	}
-	# endif
-	*/	
-
-	
+	# else //no threads
 	// ia -> rightmost point of a
 	for (int i=1; i<a_sz; i++){
 		if(a[i].x > a[ia].x){ 
+			printf("[MERGER] First for, in IF, without thread\n");
 			ia = i;
 		}		
 	}
 	
 	// ib -> leftmost point of b
-	for (int i=1; i<b_sz; i++)
-		if (b[i].x < b[ib].x)
+	for (int i=1; i<b_sz; i++){
+		if (b[i].x < b[ib].x){
+			printf("[MERGER] Second for, in IF, without thread\n");
 			ib=i;
+		}
+			
+	}
+	# endif
 	
-
-	
-
-
-	
-
 
 	// finding the upper tangent
 	int inda = ia, indb = ib;
@@ -311,10 +306,49 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr){
 	// right contains the right half points
     point left[lh_size];
     point right[rh_size];
-	for (int i=0; i<lh_size; i++) //thread
+
+	/*
+	int custom_thread_count = 4;
+	#ifdef _OPENMP
+	# pragma omp parallel num_threads(custom_thread_count)
+	{
+		int thread_num = omp_get_thread_num();
+		int real_thread_count = omp_get_num_threads();
+		int cpu_num = sched_getcpu();
+		printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is starting to work [in divide]\n", thread_num, real_thread_count, cpu_num);
+
+		# pragma omp for
+		for (int i=0; i<lh_size; i++){
+			printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in first for [in divide] \n", thread_num, real_thread_count, cpu_num);
+			# pragma omp critical
+			{
+				left[i] = cloud[i];
+			}	
+		}
+
+		# pragma omp barrier
+
+		# pragma omp for
+		for (int i=0; i<rh_size; i++){
+			printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in second for [in divide] \n", thread_num, real_thread_count, cpu_num);
+			# pragma omp critical
+			{
+				right[i] = cloud[i+lh_size];
+			}	
+		}	
+	}
+	# else //no threads
+	*/
+	for (int i=0; i<lh_size; i++){
+		printf("[DIVIDE] first assignment, without thread\n");
 		left[i] = cloud[i];
-	for (int i=0; i<rh_size; i++)  //thread
+	}
+	for (int i=0; i<rh_size; i++){
+		printf("[DIVIDE] second assignment, without thread\n");
 		right[i] = cloud[i+lh_size];
+	}		
+	//# endif
+
 	// convex hull for the left and right sets
     point left_hull[lh_size];
     point right_hull[rh_size];
@@ -352,13 +386,28 @@ void cloud_generator(point *cloud, int cloud_size){
 		// int x_c = rand()%CLOUD_WIDTH-(CLOUD_WIDTH/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         // int y_c = rand()%CLOUD_HEIGHT-(CLOUD_HEIGHT/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         // cloud[i] = (point){.x = x_c, .y = y_c};
-		int max_width = rand()%CLOUD_WIDTH+1;
-		int max_height = rand()%CLOUD_HEIGHT+1;
+		long long max_width = rand()%CLOUD_WIDTH+1;
+		long long max_height = rand()%CLOUD_HEIGHT+1;
         //printf("i: %d    %d, %d\n",i, max_width, max_height);
 
-        int x_c = rand()%max_width*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
-        int y_c = rand()%max_height*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
+        long long x_c = rand()%max_width*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
+        long long y_c = rand()%max_height*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
 		cloud[i] = (point){.x = x_c, .y = y_c};
+    }
+}
+
+void cloud_load(point *cloud, int cloud_size){
+    
+	char *path = "/home/$USER/parallel_convex_hull/cloud_to_load.txt";
+
+	FILE *fptr = fopen(path, "r");
+	
+    for(int i = 0; i < cloud_size; i++){
+		long long x_c;
+        long long y_c;
+		fscanf(fptr, "%lld%*c%lld", &x_c, &y_c);
+		cloud[i] = (point){.x = x_c, .y = y_c};
+		
     }
 }
 

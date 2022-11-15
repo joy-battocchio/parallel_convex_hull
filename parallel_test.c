@@ -59,7 +59,8 @@ int main(int argc, char *argv[]) {
         snprintf(buf_cloud, strlen(path)+20, "%scloud.txt", path);
         fptr_cloud = fopen(buf_cloud,"w");
         srand(time(NULL));   // Initialization, should only be called once.
-        cloud_generator(cloud, cloud_size);
+        //cloud_generator(cloud, cloud_size);
+        cloud_load(cloud, cloud_size);
         qsort(cloud, cloud_size, sizeof(point), compareX);
         print_cloud(cloud, cloud_size, fptr_cloud);
     }
