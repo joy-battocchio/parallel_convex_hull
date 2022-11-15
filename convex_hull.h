@@ -105,7 +105,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 
 	int custom_thread_count = 2;
 	
-	
+	/*
 	#ifdef _OPENMP
 	# pragma omp parallel num_threads(custom_thread_count) 
 	default(none) shared(a_sz, b_sz, a, b, ia, ib)
@@ -141,8 +141,9 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		
 	}
 	# endif
+	*/
+
 	
-	/*
 	// ia -> rightmost point of a
 	for (int i=1; i<a_sz; i++){
 		if(a[i].x > a[ia].x){ 
@@ -155,7 +156,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		if (b[i].x < b[ib].x)
 			ib=i;
 	
-	*/
+	
 
 
 	
