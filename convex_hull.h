@@ -121,8 +121,11 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 			printf("Thread n:%d of (%d) of %d CPU, is in first for\n", thread_num, real_thread_count, cpu_num);
 			if(a[i].x > a[ia].x){
 				# pragma omp critical 
-				printf("Thread n:%d of (%d) of %d CPU, is in IF of first for\n", thread_num, real_thread_count, cpu_num);
-				ia = i;
+				{
+					printf("Thread n:%d of (%d) of %d CPU, is in IF of first for\n", thread_num, real_thread_count, cpu_num);
+					ia = i;
+				}
+
 			}		
 		}
 
@@ -134,14 +137,16 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 			printf("Thread n:%d of (%d) of %d CPU, is in second for\n", thread_num, real_thread_count, cpu_num);
 			if (b[i].x < b[ib].x){
 				# pragma omp critical
-				printf("Thread n:%d of (%d) of %d CPU, is in IF of second for\n", thread_num, real_thread_count, cpu_num);
-				ib=i;
+				{
+					printf("Thread n:%d of (%d) of %d CPU, is in IF of second for\n", thread_num, real_thread_count, cpu_num);
+					ib=i;
+				}
 			}
 		}
 		
 	}
 	# endif
-	*/
+	*/	
 
 	
 	// ia -> rightmost point of a
