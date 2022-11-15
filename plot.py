@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.animation as animation
 import time
 
-pause = 0.001
+pause = 0.02
 
 class Point():
     def __init__(self, x, y):

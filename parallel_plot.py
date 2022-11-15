@@ -19,7 +19,7 @@ class Process():
         self.segments = []
         self.step = 0
 
-pause = 0.2
+pause = 0.02
 
 path = "output/"
 p_list = []
@@ -30,10 +30,11 @@ for file in dir_list:
         if "cloud" in file:
             lines_cloud = f.readlines()
         else:
-            p_list.append(Process(file[7:-4],f.readlines()))
+            p_list.append(Process((int)(file[7:-4]),f.readlines()))
             n_ps += 1
         f.close()
 
+p_list.sort(key=lambda x: x.id, reverse=False)
 cloud = []
 
 for line in lines_cloud:
@@ -72,6 +73,7 @@ while sum([p.status for p in p_list]) != n_ps:
                 n = (int)(line.split()[1]) 
                 for i in range(n):
                     p.segments.pop().remove()
+                #print(f"{p.id}: {len(p_list[0].segments)}")
             else:
                 x1 = (int)(p.lines[p.step].split()[0].split(';')[0])
                 x2 = (int)(p.lines[p.step].split()[1].split(';')[0])
@@ -80,19 +82,26 @@ while sum([p.status for p in p_list]) != n_ps:
                 p.segments.extend(
                     plt.plot([x1,x2], [y1,y2],'r', linestyle = "-")
                 )
-        p.step += 1
+            p.step += 1
     plt.pause(pause)
 
-h = math.log(n_ps, 2)
+h = (int)(math.log(n_ps, 2))
 
-for i in range(h):
+for i in range(1,h+1):
     for p in p_list:
         p.status = 0
-        if (p.id + 1) % 2**i == 0:
-            p.segments = p_list[p.id - 2**(i-1)] + p.segments
-            p.step += 2
-            n = line.split()[1] 
-            for i in range(n):
+        #print(len(p_list[0].segments))
+        #print(p.id+1," divisible by ", pow(2,i), "? in i = ", i)
+        if (p.id + 1) % pow(2,i) == 0:
+            #print("in: ", p.id)
+            #print(f"before : proc {p.id} segments lenght: {len(p.segments)}")
+            #print(f"before : proc {p.id - (int)(pow(2,i-1))} segments lenght: {len(p_list[p.id - (int)(pow(2,i-1))].segments)}")
+            p.segments = p_list[p.id - (int)(pow(2,i-1))].segments + p.segments
+            #print(f"after : proc {p.id} segments lenght: {len(p.segments)}")
+            p.step += 3
+            line = p.lines[p.step]
+            n = (int)(line.split()[1]) 
+            for j in range(n):
                 p.segments.pop().remove()
             p.step += 1
         else:
@@ -112,6 +121,7 @@ for i in range(h):
                 else:
                     p.status = 1
                 p.step += 1
+        plt.pause(pause)
 
 plt.waitforbuttonpress(0)
 plt.close()
