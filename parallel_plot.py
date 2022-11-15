@@ -73,10 +73,10 @@ while sum([p.status for p in p_list]) != n_ps:
                 for i in range(n):
                     p.segments.pop().remove()
             else:
-                x1 = (int)(p.line[p.step].split()[0].split(';')[0])
-                x2 = (int)(p.line[p.step].split()[1].split(';')[0])
-                y1 = (int)(p.line[p.step].split()[0].split(';')[1])
-                y2 = (int)(p.line[p.step].split()[1].split(';')[1])
+                x1 = (int)(p.lines[p.step].split()[0].split(';')[0])
+                x2 = (int)(p.lines[p.step].split()[1].split(';')[0])
+                y1 = (int)(p.lines[p.step].split()[0].split(';')[1])
+                y2 = (int)(p.lines[p.step].split()[1].split(';')[1])
                 p.segments.extend(
                     plt.plot([x1,x2], [y1,y2],'r', linestyle = "-")
                 )
@@ -102,10 +102,10 @@ for i in range(h):
             if p.status != 1:
                 line = p.lines[p.step]
                 if "END_MERGER" not in line:
-                    x1 = (int)(p.line[p.step].split()[0].split(';')[0])
-                    x2 = (int)(p.line[p.step].split()[1].split(';')[0])
-                    y1 = (int)(p.line[p.step].split()[0].split(';')[1])
-                    y2 = (int)(p.line[p.step].split()[1].split(';')[1])
+                    x1 = (int)(p.lines[p.step].split()[0].split(';')[0])
+                    x2 = (int)(p.lines[p.step].split()[1].split(';')[0])
+                    y1 = (int)(p.lines[p.step].split()[0].split(';')[1])
+                    y2 = (int)(p.lines[p.step].split()[1].split(';')[1])
                     p.segments.extend(
                         plt.plot([x1,x2], [y1,y2],'r', linestyle = "-")
                     )
