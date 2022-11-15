@@ -69,7 +69,7 @@ while sum([p.status for p in p_list]) != n_ps:
                 p.status = 1
                 p.step -= 1
             elif "#" in line:
-                n = line.split()[1] 
+                n = (int)(line.split()[1]) 
                 for i in range(n):
                     p.segments.pop().remove()
             else:
@@ -81,7 +81,7 @@ while sum([p.status for p in p_list]) != n_ps:
                     plt.plot([x1,x2], [y1,y2],'r', linestyle = "-")
                 )
         p.step += 1
-        plt.pause(pause)
+    plt.pause(pause)
 
 h = math.log(n_ps, 2)
 
