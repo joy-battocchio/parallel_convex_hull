@@ -103,36 +103,46 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	fprintf(fptr, "# %d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
 
-	//int thread_count = 1;
+	int custom_thread_count = 2;
 	
-	/*
+	
 	#ifdef _OPENMP
-	# pragma omp parallel  \
+	# pragma omp parallel num_threads(custom_thread_count) 
 	default(none) shared(a_sz, b_sz, a, b, ia, ib)
     {
 		int thread_num = omp_get_thread_num();
 		int real_thread_count = omp_get_num_threads();
-		printf("Thread n:%d of %d starting to work\n", thread_num, real_thread_count);
+		int cpu_num = sched_getcpu();
+		printf("Thread n:%d of (%d) of %d CPU, is starting to work\n", thread_num, real_thread_count);
 		
 		# pragma omp for
 		// ia -> rightmost point of a
 		for (int i=1; i<a_sz; i++){
+			printf("Thread n:%d of (%d) of %d CPU, is in first for\n", thread_num, real_thread_count, cpu_num);
 			if(a[i].x > a[ia].x){
 				# pragma omp critical 
+				printf("Thread n:%d of (%d) of %d CPU, is in IF of first for\n", thread_num, real_thread_count, cpu_num);
 				ia = i;
 			}		
 		}
+
+		# pragma omp barrier
 		
 		# pragma omp for
 		// ib -> leftmost point of b
-		for (int i=1; i<b_sz; i++)
-			if (b[i].x < b[ib].x)
+		for (int i=1; i<b_sz; i++){
+			printf("Thread n:%d of (%d) of %d CPU, is in second for\n", thread_num, real_thread_count, cpu_num);
+			if (b[i].x < b[ib].x){
 				# pragma omp critical
+				printf("Thread n:%d of (%d) of %d CPU, is in IF of second for\n", thread_num, real_thread_count, cpu_num);
 				ib=i;
+			}
+		}
 		
 	}
-	*/
-
+	# endif
+	
+	/*
 	// ia -> rightmost point of a
 	for (int i=1; i<a_sz; i++){
 		if(a[i].x > a[ia].x){ 
@@ -145,6 +155,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		if (b[i].x < b[ib].x)
 			ib=i;
 	
+	*/
 
 
 	
