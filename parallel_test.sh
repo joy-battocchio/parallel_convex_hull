@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -l select=2:ncpus=8:mem=1gb
+#PBS -l select=8:ncpus=4:mem=1gb
 #PBS -l walltime=0:10:00
 #PBS -q short_cpuQ
 
