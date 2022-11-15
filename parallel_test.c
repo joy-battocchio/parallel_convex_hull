@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     MPI_Scatter( cloud , fragment_sz , MPI_point, cloud_fragment , fragment_sz , MPI_point , 0 , MPI_COMM_WORLD);
     int hull_size;
     hull_size = divide(cloud_fragment, fragment_sz,convex_hull, fptr);
-    fprintf(fptr, "###");
+    fprintf(fptr, "###\n");
     int step = (int)log2(comm_sz);
     int i;
     for(i = 1; i <= step; i++){
@@ -85,9 +85,9 @@ int main(int argc, char *argv[]) {
             point convex_hull_merged[fragment_sz*2];
             MPI_Recv(convex_hull_rcvd, fragment_sz+1, MPI_point, my_rank-(int)pow(2,i-1), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             
-            fprintf(fptr, "START_PROCESS_MERGER");
+            fprintf(fptr, "START_PROCESS_MERGER\n");
             hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged, fptr);
-            fprintf(fptr, "###");
+            fprintf(fptr, "###\n");
             //save the merged one to the normal one in order to send or merge again in next step
             memcpy(convex_hull, convex_hull_merged, hull_size*sizeof(point));
         }
