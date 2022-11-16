@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     //type point to use in mpi communications
     
-    printf("%s_%d.txt\n", path, my_rank);
-    snprintf(buf, strlen(path)+20, "%s%d.txt", path, my_rank);
+    printf("%soutput/output_%d.txt\n", path, my_rank);
+    snprintf(buf, strlen(path)+20, "%soutput/output_%d.txt", path, my_rank);
     printf("buf: %s", buf);
     fptr = fopen(buf,"w");
     
@@ -55,12 +55,12 @@ int main(int argc, char *argv[]) {
     point cloud_fragment[fragment_sz];
     if(my_rank == 0){
         FILE *fptr_cloud;
-        char buf_cloud[strlen(path)+20]; 
-        snprintf(buf_cloud, strlen(path)+20, "%scloud.txt", path);
+        char buf_cloud[strlen(path)+30]; 
+        snprintf(buf_cloud, strlen(path)+30, "%soutput/output_cloud.txt", path);
         fptr_cloud = fopen(buf_cloud,"w");
         srand(time(NULL));   // Initialization, should only be called once.
         //cloud_generator(cloud, cloud_size);
-        cloud_load(cloud, cloud_size);
+        cloud_load(cloud, cloud_size, path);
         qsort(cloud, cloud_size, sizeof(point), compareX);
         print_cloud(cloud, cloud_size, fptr_cloud);
     }

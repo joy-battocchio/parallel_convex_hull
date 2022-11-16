@@ -396,18 +396,22 @@ void cloud_generator(point *cloud, int cloud_size){
     }
 }
 
-void cloud_load(point *cloud, int cloud_size){
-    
-	char *path = "/home/$USER/parallel_convex_hull/cloud_to_load.txt";
-
-	FILE *fptr = fopen(path, "r");
+void cloud_load(point *cloud, int cloud_size, char* path){
+        
+	char buf_cloud_to_load[strlen(path)+30]; 
+    snprintf(buf_cloud_to_load, strlen(path)+30, "%scloud_to_load.txt", path);
 	
+	FILE *fptr = fopen(buf_cloud_to_load, "r");
+	if (fptr == NULL){
+        printf ("Error opening the file\n\n'");
+	}
+
     for(int i = 0; i < cloud_size; i++){
 		long long x_c;
         long long y_c;
-		fscanf(fptr, "%lld%*c%lld", &x_c, &y_c);
-		cloud[i] = (point){.x = x_c, .y = y_c};
-		
+		fscanf(fptr, "%lld;%lld\n", &x_c, &y_c);
+		cloud[i] = (point){.x = x_c, .y = y_c};	
     }
+	fclose(fptr);
 }
 
