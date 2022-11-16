@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     int cloud_size = atoi(argv[2]);
     char *path = argv[1];
     FILE *fptr;
-    char buf[strlen(path)+20];  
+    char buf[strlen(path)+30];  
 
 
     MPI_Init(NULL, NULL);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     //type point to use in mpi communications
     
     printf("%soutput/output_%d.txt\n", path, my_rank);
-    snprintf(buf, strlen(path)+20, "%soutput/output_%d.txt", path, my_rank);
+    snprintf(buf, strlen(path)+30, "%soutput/output_%d.txt", path, my_rank);
     printf("buf: %s", buf);
     fptr = fopen(buf,"w");
     
