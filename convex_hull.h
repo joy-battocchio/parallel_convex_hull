@@ -105,7 +105,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 
 	int custom_thread_count = 4;
 	
-	
+	/*
 	#ifdef _OPENMP
 	# pragma omp parallel num_threads(custom_thread_count) \
 	//default(none) shared(a_sz, b_sz, a, b, ia, ib)
@@ -144,6 +144,8 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		
 	}
 	# else //no threads
+
+	*/
 	// ia -> rightmost point of a
 	for (int i=1; i<a_sz; i++){
 		if(a[i].x > a[ia].x){ 
@@ -160,7 +162,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		}
 			
 	}
-	# endif
+	//# endif
 	
 
 	// finding the upper tangent

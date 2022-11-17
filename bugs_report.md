@@ -32,5 +32,47 @@ first 1/2 points with positive x:   always correct
 points here in the middle:          wrong
 last 1/2 points with positive x:    always correct
 
+# Runs
+
+#PBS -l select=16:ncpus=1:mem=4gb
+mpirun.actual -n 16 ./parallel_convex_hull/parallel_test /home/$USER/parallel_convex_hull/ 128
+no threads 
+HULL OK
+
+
+#PBS -l select=32:ncpus=1:mem=4gb
+mpirun.actual -n 32 ./parallel_convex_hull/parallel_test /home/$USER/parallel_convex_hull/ 128
+no threads 
+only 30 mpi processes spawned
+31th not spawned (so output_31.txt empty) VERY COMMON PATTERN
+so hull not present in output file
+
+
+#PBS -l select=32:ncpus=1:mem=6gb
+mpirun.actual -n 32 ./parallel_convex_hull/parallel_test /home/$USER/parallel_convex_hull/ 128
+no threads 
+only 30 mpi processes spawned
+31th not spawned
+output_30.txt and _31.txt not even present
+so hull not present in output file
+in error file:
+Fatal error in MPI_Recv: Unknown error class, error stack:
+MPI_Recv(200).........................: MPI_Recv(buf=0x7ffd092da410, count=33, dtype=USER<struct>, src=7, tag=0, MPI_COMM_WORLD, status=0x1) failed
+MPIDU_Complete_posted_with_error(1137): Process failed
+
+
+#PBS -l select=32:ncpus=16:mem=6gb
+error file: walltime excedeed 
+correct number of processes spawned
+
+
+
+
+
+
+
+
+
+
 
 
