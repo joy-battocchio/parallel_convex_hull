@@ -179,3 +179,38 @@ mpirun.actual -n 256 ./parallel_convex_hull/parallel_test /home/$USER/parallel_c
 first run OK
 
 
+
+#PBS -l select=8:ncpus=64:mem=2gb
+mpirun.actual -n 512 ./parallel_convex_hull/parallel_test /home/$USER/parallel_convex_hull/ 1024
+
+first run OK
+
+second run ERROR:
+Fatal error in MPI_Ssend: Unknown error class, error stack:
+MPI_Ssend(152)..................: MPI_Ssend(buf=0x7fff0e487d30, count=3, dtype=USER<struct>, dest=229, tag=0, MPI_COMM_WORLD) failed
+MPIDI_EagerSyncNoncontigSend(86): failure occurred while attempting to send an eager message
+MPIDI_CH3_iSendv(34)............: Communication error with rank 229
+Fatal error in MPI_Ssend: Unknown error class, error stack:
+MPI_Ssend(152)..................: MPI_Ssend(buf=0x7ffea081a730, count=3, dtype=USER<struct>, dest=277, tag=0, MPI_COMM_WORLD) failed
+MPIDI_EagerSyncNoncontigSend(86): failure occurred while attempting to send an eager message
+MPIDI_CH3_iSendv(34)............: Communication error with rank 277
+Fatal error in MPI_Ssend: Unknown error class, error stack:
+MPI_Ssend(152)..................: MPI_Ssend(buf=0x7ffd88066030, count=3, dtype=USER<struct>, dest=301, tag=0, MPI_COMM_WORLD) failed
+MPIDI_EagerSyncNoncontigSend(86): failure occurred while attempting to send an eager message
+MPIDI_CH3_iSendv(34)............: Communication error with rank 301
+Fatal error in MPI_Ssend: Unknown error class, error stack:
+MPI_Ssend(152)..................: MPI_Ssend(buf=0x7fff9071bca0, count=3, dtype=USER<struct>, dest=341, tag=0, MPI_COMM_WORLD) failed
+MPIDI_EagerSyncNoncontigSend(86): failure occurred while attempting to send an eager message
+MPIDI_CH3_iSendv(34)............: Communication error with rank 341
+Fatal error in MPI_Ssend: Unknown error class, error stack:
+MPI_Ssend(152)..................: MPI_Ssend(buf=0x7ffe3df857b0, count=3, dtype=USER<struct>, dest=461, tag=0, MPI_COMM_WORLD) failed
+MPIDI_EagerSyncNoncontigSend(86): failure occurred while attempting to send an eager message
+MPIDI_CH3_iSendv(34)............: Communication error with rank 461
+
+third run:
+error file empty 
+but no HULL
+some output.txt are empty 
+511 empty for example (last file empty is a common pattern)
+
+
