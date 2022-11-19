@@ -31,11 +31,9 @@ int main(int argc, char *argv[]) {
     FILE *fptr;
     char buf[strlen(path)+30];  
 
-
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    //type point to use in mpi communications
     
     printf("%soutput/output_%d.txt\n", path, my_rank);
     snprintf(buf, strlen(path)+30, "%soutput/output_%d.txt", path, my_rank);
@@ -45,7 +43,7 @@ int main(int argc, char *argv[]) {
     MPI_Datatype MPI_point;
     defineStruct(&MPI_point);
     
-    printf("comm_sz: %d\n", comm_sz);
+    printf("[BEFORE SCATTER]: RANK: %d\n", my_rank);
     
     int fragment_sz = cloud_size/(comm_sz);
     printf("my_rank: %d, fragment_sz: %d\n", my_rank, fragment_sz);
@@ -67,7 +65,9 @@ int main(int argc, char *argv[]) {
     if(my_rank == comm_sz-1){
         start_time = MPI_Wtime();
     }
-    MPI_Scatter( cloud , fragment_sz , MPI_point, cloud_fragment , fragment_sz , MPI_point , 0 , MPI_COMM_WORLD);
+    printf("[BEFORE BARRIER]: RANK: %d\n", my_rank);
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Scatter(cloud, fragment_sz, MPI_point, cloud_fragment, fragment_sz, MPI_point, 0, MPI_COMM_WORLD);
     int hull_size;
     hull_size = divide(cloud_fragment, fragment_sz,convex_hull, fptr);
     fprintf(fptr, "###\n");
