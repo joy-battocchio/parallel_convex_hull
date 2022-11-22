@@ -30,6 +30,18 @@ run_serial: serial_test
 sub_parallel: 
 	qsub parallel_test.sh
 
+sub_benchmark: 
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+	qsub parallel_test.sh
+
 sub_serial: 
 	qsub serial_test.sh
 
