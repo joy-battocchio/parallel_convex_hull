@@ -99,8 +99,8 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	//qsort(b, b_sz, sizeof(point), compareX);
 
 	//int thread_count = 4;
-	fprintf(fptr, "START_MERGER\n");
-	fprintf(fptr, "# %d\n",a_sz+b_sz);
+	//fprintf(fptr, "START_MERGER\n");
+	//fprintf(fptr, "# %d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
 
 	int custom_thread_count = 4;
@@ -149,7 +149,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	// ia -> rightmost point of a
 	for (int i=1; i<a_sz; i++){
 		if(a[i].x > a[ia].x){ 
-			printf("[MERGER] First for, in IF, without thread\n");
+			//] First for, in IF, without thread\n");
 			ia = i;
 		}		
 	}
@@ -157,7 +157,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	// ib -> leftmost point of b
 	for (int i=1; i<b_sz; i++){
 		if (b[i].x < b[ib].x){
-			printf("[MERGER] Second for, in IF, without thread\n");
+			//printf("[MERGER] Second for, in IF, without thread\n");
 			ib=i;
 		}
 			
@@ -207,22 +207,22 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	while (ind != lowera){
 		ind = (ind+1)%a_sz;
         cx_hull[hull_size] = a[ind];
-		fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, a[ind].x, a[ind].y);
+		//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, a[ind].x, a[ind].y);
         hull_size++;
 	}
 
 	ind = lowerb;
     cx_hull[hull_size] = b[lowerb];
-	fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[hull_size].x, cx_hull[hull_size].y);
+	//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[hull_size].x, cx_hull[hull_size].y);
     hull_size++; 
 	while (ind != upperb){
 		ind = (ind+1)%b_sz;
         cx_hull[hull_size] = b[ind];
-		fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
+		//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
         hull_size++;
 	}
-	fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[0].x, cx_hull[0].y);
-	fprintf(fptr, "END_MERGER\n");
+	//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[0].x, cx_hull[0].y);
+	//fprintf(fptr, "END_MERGER\n");
 	return hull_size;
 }
 
@@ -239,7 +239,7 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
 	// of the line then the line is the edge of convex
 	// hull otherwise not
     //point* a = (point*)aV;
-	fprintf(fptr, "START_BH\n");
+	//fprintf(fptr, "START_BH\n");
 	int hull_size = 0;
 	for (int i=0; i<size; i++){
 		for (int j=i+1; j<size; j++){
@@ -266,8 +266,8 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
                     cx_hull[hull_size] = cloud[j];
 					hull_size++;
 				}
-				fprintf(fptr, "%lld;%lld ",cloud[i].x, cloud[i].y);
-				fprintf(fptr, "%lld;%lld\n",cloud[j].x, cloud[j].y);
+				//fprintf(fptr, "%lld;%lld ",cloud[i].x, cloud[i].y);
+				//fprintf(fptr, "%lld;%lld\n",cloud[j].x, cloud[j].y);
 			}
 		}
 	}
@@ -285,7 +285,7 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
         cx_hull[i].x /= hull_size;
         cx_hull[i].y /= hull_size;
 	}
-	fprintf(fptr, "END_BH\n");
+	//fprintf(fptr, "END_BH\n");
 	return hull_size;
 }
 
@@ -306,8 +306,8 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr){
 
 	// left contains the left half points
 	// right contains the right half points
-    point left[lh_size];
-    point right[rh_size];
+    point *left = (point*)malloc(lh_size * sizeof(point));
+    point *right = (point*)malloc(rh_size * sizeof(point));
 
 	/*
 	int custom_thread_count = 4;
@@ -342,11 +342,11 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr){
 	# else //no threads
 	*/
 	for (int i=0; i<lh_size; i++){
-		printf("[DIVIDE] first assignment, without thread\n");
+		//printf("[DIVIDE] first assignment, without thread\n");
 		left[i] = cloud[i];
 	}
 	for (int i=0; i<rh_size; i++){
-		printf("[DIVIDE] second assignment, without thread\n");
+		//printf("[DIVIDE] second assignment, without thread\n");
 		right[i] = cloud[i+lh_size];
 	}		
 	//# endif
@@ -356,6 +356,10 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr){
     point right_hull[rh_size];
 	lh_size = divide(left,lh_size, left_hull, fptr);
 	rh_size = divide(right, rh_size, right_hull, fptr);
+	
+	free(left);
+	free(right);
+
 	// merging the convex hulls
 	return merger(left_hull, lh_size, right_hull, rh_size, cx_hull, fptr);
 }
