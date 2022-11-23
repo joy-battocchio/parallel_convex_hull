@@ -416,12 +416,13 @@ void cloud_load(point *cloud, int cloud_size, char* path, int rank){
 		char line[256];
 		if(i < start_pos){
 			fgets(line, sizeof(line), fptr);
+			fflush(stdin);
 		}else{
 			for(int j = 0; j < cloud_size; j++){
 				long long x_c;
 				long long y_c;
 				fscanf(fptr, "%lld;%lld\n", &x_c, &y_c);
-				cloud[i] = (point){.x = x_c, .y = y_c};	
+				cloud[j] = (point){.x = x_c, .y = y_c};	
 			}
 			fclose(fptr);
 			return;
