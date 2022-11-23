@@ -132,15 +132,17 @@ int main(int argc, char *argv[]) {
         fragment_sz *= 2;
     }
     if(my_rank == comm_sz-1){
+        /*
         FILE *fTime;
         char bufTime[strlen(path)+30]; 
         snprintf(bufTime, strlen(path)+30, "%soutput/output_time.txt", path);
         fTime = fopen(bufTime, "a");
+        */
         print_cloud(convex_hull, hull_size, NULL);
         end_time = MPI_Wtime();
         interval = end_time - start_time;
         printf("Finished in time: %lf\n", interval);
-        fprintf(fTime, "%lf\n", interval);
+        //fprintf(fTime, "%lf\n", interval);
     }
     
     printf("[FINAL] My rank: %d\n", my_rank);
