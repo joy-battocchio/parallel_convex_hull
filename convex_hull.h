@@ -6,13 +6,14 @@
 #include <omp.h>
 #endif
 
+extern bool flag;
 
 //this seems to be the highest value for the cloud width and height
 // #define CLOUD_WIDTH 10000000
 // #define CLOUD_HEIGHT 10000000
 const int CLOUD_WIDTH = 1000000000;
 const int CLOUD_HEIGHT = 1000000000;
-const int MAX_CLOUD_SIZE = 1048576;
+const int MAX_CLOUD_SIZE = 4194304;
 
 typedef struct {
     long long x;
@@ -100,8 +101,8 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	//qsort(b, b_sz, sizeof(point), compareX);
 
 	//int thread_count = 4;
-	//fprintf(fptr, "START_MERGER\n");
-	//fprintf(fptr, "# %d\n",a_sz+b_sz);
+	!flag ?: fprintf(fptr, "START_MERGER\n");
+	!flag ?: fprintf(fptr, "# %d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
 
 	int custom_thread_count = 4;
@@ -208,22 +209,22 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	while (ind != lowera){
 		ind = (ind+1)%a_sz;
         cx_hull[hull_size] = a[ind];
-		//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, a[ind].x, a[ind].y);
+		!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, a[ind].x, a[ind].y);
         hull_size++;
 	}
 
 	ind = lowerb;
     cx_hull[hull_size] = b[lowerb];
-	//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[hull_size].x, cx_hull[hull_size].y);
+	!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[hull_size].x, cx_hull[hull_size].y);
     hull_size++; 
 	while (ind != upperb){
 		ind = (ind+1)%b_sz;
         cx_hull[hull_size] = b[ind];
-		//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
+		!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
         hull_size++;
 	}
-	//fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[0].x, cx_hull[0].y);
-	//fprintf(fptr, "END_MERGER\n");
+	!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[0].x, cx_hull[0].y);
+	!flag ?: fprintf(fptr, "END_MERGER\n");
 	return hull_size;
 }
 
@@ -240,7 +241,7 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
 	// of the line then the line is the edge of convex
 	// hull otherwise not
     //point* a = (point*)aV;
-	//fprintf(fptr, "START_BH\n");
+	!flag ?: fprintf(fptr, "START_BH\n");
 	int hull_size = 0;
 	for (int i=0; i<size; i++){
 		for (int j=i+1; j<size; j++){
@@ -267,8 +268,8 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
                     cx_hull[hull_size] = cloud[j];
 					hull_size++;
 				}
-				//fprintf(fptr, "%lld;%lld ",cloud[i].x, cloud[i].y);
-				//fprintf(fptr, "%lld;%lld\n",cloud[j].x, cloud[j].y);
+				!flag ?: fprintf(fptr, "%lld;%lld ",cloud[i].x, cloud[i].y);
+				!flag ?: fprintf(fptr, "%lld;%lld\n",cloud[j].x, cloud[j].y);
 			}
 		}
 	}
@@ -286,7 +287,7 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
         cx_hull[i].x /= hull_size;
         cx_hull[i].y /= hull_size;
 	}
-	//fprintf(fptr, "END_BH\n");
+	!flag ?: fprintf(fptr, "END_BH\n");
 	return hull_size;
 }
 
@@ -429,4 +430,5 @@ void cloud_load(point *cloud, int cloud_size, char* path, int rank){
 		}
 	}
 }
+
 

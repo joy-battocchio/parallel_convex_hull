@@ -50,13 +50,14 @@ int compareX(const void *p1, const void *q1){
 }
 
 int main(int argc, char *argv[]) {
+    int cloud_size = atoi(argv[1]);
     FILE *fptr;
     fptr = fopen("cloud_to_load.txt","w");
     point *cloud;
     
-    cloud = (point*)malloc(1048576 * sizeof(point));
+    cloud = (point*)malloc(cloud_size * sizeof(point));
     
-    cloud_generator(cloud,1048576);
-    qsort(cloud, 1048576, sizeof(point), compareX);
-    print_cloud(cloud,1048576,fptr);
+    cloud_generator(cloud,cloud_size);
+    qsort(cloud, cloud_size, sizeof(point), compareX);
+    print_cloud(cloud,cloud_size,fptr);
 }

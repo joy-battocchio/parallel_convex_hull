@@ -7,6 +7,8 @@
 #include <mpi.h>
 #include "convex_hull.h"
 
+bool flag;
+
 void defineStruct(MPI_Datatype *tstype) {
     //const int count = 2;
     int blocklens[2] = {1,1};
@@ -27,6 +29,7 @@ int main(int argc, char *argv[]) {
     double interval;
 
     int cloud_size = atoi(argv[2]);
+    flag = (atoi(argv[3]) == 1) ? true : false;
     char *path = argv[1];
     FILE *fptr;
     //FILE *fptr_cloud;
@@ -73,7 +76,7 @@ int main(int argc, char *argv[]) {
     
     int hull_size;
     hull_size = divide(cloud_fragment, fragment_sz,convex_hull, fptr);
-    //fprintf(fptr, "###\n");
+    !flag ?: fprintf(fptr, "###\n");
     int step = (int)log2(comm_sz);
     int i;
     for(i = 1; i <= step; i++){
@@ -96,9 +99,9 @@ int main(int argc, char *argv[]) {
             point convex_hull_merged[fragment_sz*2];
             MPI_Recv(convex_hull_rcvd, fragment_sz+1, MPI_point, my_rank-(int)pow(2,i-1), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             printf("step: %d    receiver: %d from %d\n",i, my_rank,  my_rank-(int)pow(2,i-1));
-            //fprintf(fptr, "START_PROCESS_MERGER\n");
+            !flag ?: fprintf(fptr, "START_PROCESS_MERGER\n");
             hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged, fptr);
-            //fprintf(fptr, "###\n");
+            !flag ?: fprintf(fptr, "###\n");
             //save the merged one to the normal one in order to send or merge again in next step
             memcpy(convex_hull, convex_hull_merged, hull_size*sizeof(point));
         }
