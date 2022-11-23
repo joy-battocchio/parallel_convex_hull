@@ -12,6 +12,7 @@
 // #define CLOUD_HEIGHT 10000000
 const int CLOUD_WIDTH = 1000000000;
 const int CLOUD_HEIGHT = 1000000000;
+const int MAX_CLOUD_SIZE = 1048576;
 
 typedef struct {
     long long x;
@@ -402,8 +403,8 @@ void cloud_generator(point *cloud, int cloud_size){
     }
 }
 
-void cloud_load(point *cloud, int cloud_size, char* path){
-        
+void cloud_load(point *cloud, int cloud_size, char* path, int rank){
+    int start_pos = cloud_size*rank;   
 	char buf_cloud_to_load[strlen(path)+30]; 
     snprintf(buf_cloud_to_load, strlen(path)+30, "%scloud_to_load.txt", path);
 	
@@ -411,13 +412,20 @@ void cloud_load(point *cloud, int cloud_size, char* path){
 	if (fptr == NULL){
         printf ("Error opening the file\n\n'");
 	}
-
-    for(int i = 0; i < cloud_size; i++){
-		long long x_c;
-        long long y_c;
-		fscanf(fptr, "%lld;%lld\n", &x_c, &y_c);
-		cloud[i] = (point){.x = x_c, .y = y_c};	
-    }
-	fclose(fptr);
+	for(int i = 0; i< MAX_CLOUD_SIZE; i++){
+		char line[256];
+		if(i < start_pos){
+			fgets(line, sizeof(line), fptr);
+		}else{
+			for(int j = 0; j < cloud_size; j++){
+				long long x_c;
+				long long y_c;
+				fscanf(fptr, "%lld;%lld\n", &x_c, &y_c);
+				cloud[i] = (point){.x = x_c, .y = y_c};	
+			}
+			fclose(fptr);
+			return;
+		}
+	}
 }
 

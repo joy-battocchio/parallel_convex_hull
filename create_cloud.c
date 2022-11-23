@@ -13,7 +13,7 @@ typedef struct {
     long long y;
 } point;
 
-void cloud_generator(int cloud_size, FILE *ptr){
+void cloud_generator(point *cloud, int cloud_size){
     int i;
     for(i = 0; i < cloud_size; i++){
 		// int x_c = rand()%CLOUD_WIDTH-(CLOUD_WIDTH/2);      // Returns a pseudo-random integer between 0 and RAND_MAX.
@@ -25,13 +25,38 @@ void cloud_generator(int cloud_size, FILE *ptr){
 
         long long x_c = rand()%max_width*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
         long long y_c = rand()%max_height*(rand()%2*2-1);      // Returns a pseudo-random integer between 0 and RAND_MAX.
-		fprintf(ptr,"%lld;%lld\n",x_c, y_c);
+		cloud[i] = (point){.x = x_c, .y = y_c};
     }
+}
+
+void print_cloud(point *cloud,int size, FILE *ptr){
+    int i;
+    if(ptr != NULL){
+        for(i = 0; i < size; i++){
+            point elem = cloud[i];
+            fprintf(ptr,"%lld;%lld\n",elem.x, elem.y);
+        }
+    }else{
+        for(i = 0; i < size; i++){
+            point elem = cloud[i];
+			printf("%lld;%lld\n",elem.x, elem.y);
+        }
+		printf("____________________________\n\n");
+    }
+}
+
+int compareX(const void *p1, const void *q1){
+	return ((point*)p1)->x - ((point*)q1)->x;
 }
 
 int main(int argc, char *argv[]) {
     FILE *fptr;
     fptr = fopen("cloud_to_load.txt","w");
+    point *cloud;
     
-    cloud_generator(1048576, fptr);
+    cloud = (point*)malloc(1048576 * sizeof(point));
+    
+    cloud_generator(cloud,1048576);
+    qsort(cloud, 1048576, sizeof(point), compareX);
+    print_cloud(cloud,1048576,fptr);
 }

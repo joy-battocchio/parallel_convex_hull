@@ -29,7 +29,8 @@ int main(int argc, char *argv[]) {
     int cloud_size = atoi(argv[2]);
     char *path = argv[1];
     FILE *fptr;
-    char buf[strlen(path)+30];  
+    //FILE *fptr_cloud;
+    char buf[strlen(path)+30];     
 
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
@@ -48,28 +49,28 @@ int main(int argc, char *argv[]) {
     int fragment_sz = cloud_size/(comm_sz);
     printf("my_rank: %d, fragment_sz: %d\n", my_rank, fragment_sz);
     
-    point *cloud;
+    //point *cloud;
     point *convex_hull = (point*)malloc(cloud_size * sizeof(point));
     point *cloud_fragment = (point*)malloc(fragment_sz * sizeof(point));
+    cloud_load(cloud_fragment, fragment_sz, path, my_rank);
     
     if(my_rank == 0){
-        FILE *fptr_cloud;
-        cloud = (point*)malloc(cloud_size * sizeof(point));
-        char buf_cloud[strlen(path)+30]; 
-        snprintf(buf_cloud, strlen(path)+30, "%soutput/output_cloud.txt", path);
-        fptr_cloud = fopen(buf_cloud,"w");
-        srand(time(NULL));
-        cloud_generator(cloud, cloud_size);
-        //cloud_load(cloud, cloud_size, path);
-        qsort(cloud, cloud_size, sizeof(point), compareX);
+        //cloud = (point*)malloc(cloud_size * sizeof(point));
+        //char buf_cloud[strlen(path)+30]; 
+        // snprintf(buf_cloud, strlen(path)+30, "%soutput/output_cloud.txt", path);
+        // fptr_cloud = fopen(buf_cloud,"w");
+        //srand(time(NULL));
+        //cloud_generator(cloud, cloud_size);
+        //qsort(cloud, cloud_size, sizeof(point), compareX);
         //print_cloud(cloud, cloud_size, fptr_cloud);
     }
     if(my_rank == comm_sz-1){
         start_time = MPI_Wtime();
     }
-    printf("[BEFORE BARRIER]: RANK: %d\n", my_rank);
-    MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Scatter(cloud, fragment_sz, MPI_point, cloud_fragment, fragment_sz, MPI_point, 0, MPI_COMM_WORLD);
+    //printf("[BEFORE BARRIER]: RANK: %d\n", my_rank);
+    //MPI_Barrier(MPI_COMM_WORLD);
+    //MPI_Scatter(cloud, fragment_sz, MPI_point, cloud_fragment, fragment_sz, MPI_point, 0, MPI_COMM_WORLD);
+    
     int hull_size;
     hull_size = divide(cloud_fragment, fragment_sz,convex_hull, fptr);
     //fprintf(fptr, "###\n");
@@ -121,7 +122,7 @@ int main(int argc, char *argv[]) {
             printf("step: %d    sender: %d to %d hull of size %lld\n",i, my_rank, my_rank+(int)pow(2,i-1), convex_hull[fragment_sz].x);
             
             if(my_rank==0){
-                free(cloud);
+                //free(cloud);
             }
             free(convex_hull);
             free(cloud_fragment);
@@ -131,10 +132,15 @@ int main(int argc, char *argv[]) {
         fragment_sz *= 2;
     }
     if(my_rank == comm_sz-1){
+        FILE *fTime;
+        char bufTime[strlen(path)+30]; 
+        snprintf(bufTime, strlen(path)+30, "%soutput/output_time.txt", path);
+        fTime = fopen(bufTime, "a");
         print_cloud(convex_hull, hull_size, NULL);
         end_time = MPI_Wtime();
         interval = end_time - start_time;
         printf("Finished in time: %lf\n", interval);
+        fprintf(fTime, "%lf\n", interval);
     }
     
     printf("[FINAL] My rank: %d\n", my_rank);
