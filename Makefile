@@ -1,6 +1,6 @@
 CC = mpicc
 CC2 = gcc
-CFLAGS = -std=c99 -fopenmp -g -Wall -fstack-protector -lm  -I.
+CFLAGS = -std=c99 -g -fopenmp -Wall -fstack-protector -lm  -I.
 DEPS = convex_hull.h
 OBJ = parallel_test.o
 OBJ2 = serial_test.o

@@ -28,9 +28,18 @@ int main(int argc, char *argv[]) {
     double end_time;
     double interval;
 
+    char *path = argv[1];
     int cloud_size = atoi(argv[2]);
     flag = (atoi(argv[3]) == 1) ? true : false;
-    char *path = argv[1];
+
+    int n_threads;
+    if(argv[4]==NULL){
+        n_threads = 0;
+    }else{
+        n_threads = atoi(argv[4]);
+        printf("n_threads: %d", n_threads);
+    }
+    
     FILE *fptr;
     //FILE *fptr_cloud;
     char buf[strlen(path)+30];     
@@ -75,8 +84,8 @@ int main(int argc, char *argv[]) {
     //MPI_Scatter(cloud, fragment_sz, MPI_point, cloud_fragment, fragment_sz, MPI_point, 0, MPI_COMM_WORLD);
     
     int hull_size;
-    hull_size = divide(cloud_fragment, fragment_sz,convex_hull, fptr);
-    !flag ?: fprintf(fptr, "###\n");
+    hull_size = divide(cloud_fragment, fragment_sz, convex_hull, fptr, n_threads);
+    !flag ? true : fprintf(fptr, "###\n");
     int step = (int)log2(comm_sz);
     int i;
     for(i = 1; i <= step; i++){
@@ -99,9 +108,9 @@ int main(int argc, char *argv[]) {
             point convex_hull_merged[fragment_sz*2];
             MPI_Recv(convex_hull_rcvd, fragment_sz+1, MPI_point, my_rank-(int)pow(2,i-1), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             printf("step: %d    receiver: %d from %d\n",i, my_rank,  my_rank-(int)pow(2,i-1));
-            !flag ?: fprintf(fptr, "START_PROCESS_MERGER\n");
-            hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged, fptr);
-            !flag ?: fprintf(fptr, "###\n");
+            !flag ? true : fprintf(fptr, "START_PROCESS_MERGER\n");
+            hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged, fptr, n_threads);
+            !flag ? true : fprintf(fptr, "###\n");
             //save the merged one to the normal one in order to send or merge again in next step
             memcpy(convex_hull, convex_hull_merged, hull_size*sizeof(point));
         }

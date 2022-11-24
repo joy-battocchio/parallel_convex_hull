@@ -92,7 +92,7 @@ int compareX(const void *p1, const void *q1){
 ######DONE######
 
 */
-int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
+int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr, int n_threads){
 	// n1 -> number of points in polygon a
 	// n2 -> number of points in polygon b
     // point* a = (point*)aV;
@@ -100,17 +100,18 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	//qsort(a, a_sz, sizeof(point), compareX);
 	//qsort(b, b_sz, sizeof(point), compareX);
 
-	//int thread_count = 4;
-	!flag ?: fprintf(fptr, "START_MERGER\n");
-	!flag ?: fprintf(fptr, "# %d\n",a_sz+b_sz);
+	!flag ? true : fprintf(fptr, "START_MERGER\n");
+	!flag ? true : fprintf(fptr, "# %d\n",a_sz+b_sz);
 	int ia = 0, ib = 0;
-
-	int custom_thread_count = 4;
 	
-	/*
+	bool multithreading = false;
+	(n_threads>1) ? (multithreading=true) : (multithreading=false);
+	printf("multithreading: %d\n", multithreading);
+	printf("n_threads: %d\n", n_threads);
+			
 	#ifdef _OPENMP
-	# pragma omp parallel num_threads(custom_thread_count) \
-	//default(none) shared(a_sz, b_sz, a, b, ia, ib)
+	# pragma omp parallel num_threads(n_threads) if(multithreading)\
+	default(none) shared(a_sz, b_sz, a, b, ia, ib)
     {
 		int thread_num = omp_get_thread_num();
 		int real_thread_count = omp_get_num_threads();
@@ -119,7 +120,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		
 		# pragma omp for
 		for (int i=1; i<a_sz; i++){
-			printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in first for\n", thread_num, real_thread_count, cpu_num);
+			//printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in first for\n", thread_num, real_thread_count, cpu_num);
 			if(a[i].x > a[ia].x){
 				# pragma omp critical 
 				{
@@ -134,7 +135,7 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 		
 		# pragma omp for
 		for (int i=1; i<b_sz; i++){
-			printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in second for\n", thread_num, real_thread_count, cpu_num);
+			//printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in second for\n", thread_num, real_thread_count, cpu_num);
 			if (b[i].x < b[ib].x){
 				# pragma omp critical
 				{
@@ -147,11 +148,10 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	}
 	# else //no threads
 
-	*/
 	// ia -> rightmost point of a
 	for (int i=1; i<a_sz; i++){
 		if(a[i].x > a[ia].x){ 
-			//] First for, in IF, without thread\n");
+			printf("[MERGER] First for, in IF, without thread\n");
 			ia = i;
 		}		
 	}
@@ -159,12 +159,11 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	// ib -> leftmost point of b
 	for (int i=1; i<b_sz; i++){
 		if (b[i].x < b[ib].x){
-			//printf("[MERGER] Second for, in IF, without thread\n");
+			printf("[MERGER] Second for, in IF, without thread\n");
 			ib=i;
-		}
-			
+		}	
 	}
-	//# endif
+	# endif
 	
 
 	// finding the upper tangent
@@ -209,22 +208,22 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr){
 	while (ind != lowera){
 		ind = (ind+1)%a_sz;
         cx_hull[hull_size] = a[ind];
-		!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, a[ind].x, a[ind].y);
+		!flag ? true : fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, a[ind].x, a[ind].y);
         hull_size++;
 	}
 
 	ind = lowerb;
     cx_hull[hull_size] = b[lowerb];
-	!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[hull_size].x, cx_hull[hull_size].y);
+	!flag ? true : fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[hull_size].x, cx_hull[hull_size].y);
     hull_size++; 
 	while (ind != upperb){
 		ind = (ind+1)%b_sz;
         cx_hull[hull_size] = b[ind];
-		!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
+		!flag ? true : fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, b[ind].x, b[ind].y);
         hull_size++;
 	}
-	!flag ?: fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[0].x, cx_hull[0].y);
-	!flag ?: fprintf(fptr, "END_MERGER\n");
+	!flag ? true : fprintf(fptr, "%lld;%lld %lld;%lld\n", cx_hull[hull_size-1].x, cx_hull[hull_size-1].y, cx_hull[0].x, cx_hull[0].y);
+	!flag ? true : fprintf(fptr, "END_MERGER\n");
 	return hull_size;
 }
 
@@ -241,7 +240,7 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
 	// of the line then the line is the edge of convex
 	// hull otherwise not
     //point* a = (point*)aV;
-	!flag ?: fprintf(fptr, "START_BH\n");
+	!flag ? true : fprintf(fptr, "START_BH\n");
 	int hull_size = 0;
 	for (int i=0; i<size; i++){
 		for (int j=i+1; j<size; j++){
@@ -268,8 +267,8 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
                     cx_hull[hull_size] = cloud[j];
 					hull_size++;
 				}
-				!flag ?: fprintf(fptr, "%lld;%lld ",cloud[i].x, cloud[i].y);
-				!flag ?: fprintf(fptr, "%lld;%lld\n",cloud[j].x, cloud[j].y);
+				!flag ? true : fprintf(fptr, "%lld;%lld ",cloud[i].x, cloud[i].y);
+				!flag ? true : fprintf(fptr, "%lld;%lld\n",cloud[j].x, cloud[j].y);
 			}
 		}
 	}
@@ -287,7 +286,7 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
         cx_hull[i].x /= hull_size;
         cx_hull[i].y /= hull_size;
 	}
-	!flag ?: fprintf(fptr, "END_BH\n");
+	!flag ? true : fprintf(fptr, "END_BH\n");
 	return hull_size;
 }
 
@@ -297,7 +296,7 @@ int bruteHull(point *cloud, int size, point *cx_hull, FILE *fptr){
 
 */
 //already translated into only array for parallel implementation
-int divide(point *cloud, int size, point *cx_hull, FILE *fptr){
+int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
 	// If the number of points is less than 6 then the
 	// function uses the brute algorithm to find the
 	// convex hull
@@ -356,14 +355,14 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr){
 	// convex hull for the left and right sets
     point left_hull[lh_size];
     point right_hull[rh_size];
-	lh_size = divide(left,lh_size, left_hull, fptr);
-	rh_size = divide(right, rh_size, right_hull, fptr);
+	lh_size = divide(left,lh_size, left_hull, fptr, n_threads);
+	rh_size = divide(right, rh_size, right_hull, fptr, n_threads);
 	
 	free(left);
 	free(right);
 
 	// merging the convex hulls
-	return merger(left_hull, lh_size, right_hull, rh_size, cx_hull, fptr);
+	return merger(left_hull, lh_size, right_hull, rh_size, cx_hull, fptr, n_threads);
 }
 
 void print_cloud(point *cloud,int size, FILE *ptr){
