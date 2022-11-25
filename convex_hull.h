@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
 #ifdef _OPENMP
@@ -102,56 +103,11 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr, in
 
 	!flag ? true : fprintf(fptr, "START_MERGER\n");
 	!flag ? true : fprintf(fptr, "# %d\n",a_sz+b_sz);
+		
 	int ia = 0, ib = 0;
-	
-	bool multithreading = false;
-	(n_threads>1) ? (multithreading=true) : (multithreading=false);
-	printf("multithreading: %d\n", multithreading);
-	printf("n_threads: %d\n", n_threads);
-			
-	#ifdef _OPENMP
-	# pragma omp parallel num_threads(n_threads) if(multithreading)\
-	default(none) shared(a_sz, b_sz, a, b, ia, ib)
-    {
-		int thread_num = omp_get_thread_num();
-		int real_thread_count = omp_get_num_threads();
-		int cpu_num = sched_getcpu();
-		printf("[MERGER] Thread n:%d of (%d) of %d CPU, is starting to work\n", thread_num, real_thread_count, cpu_num);
-		
-		# pragma omp for
-		for (int i=1; i<a_sz; i++){
-			//printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in first for\n", thread_num, real_thread_count, cpu_num);
-			if(a[i].x > a[ia].x){
-				# pragma omp critical 
-				{
-					printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in IF of first for\n", thread_num, real_thread_count, cpu_num);
-					ia = i; // ia -> rightmost point of a
-				}
-
-			}		
-		}
-
-		# pragma omp barrier
-		
-		# pragma omp for
-		for (int i=1; i<b_sz; i++){
-			//printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in second for\n", thread_num, real_thread_count, cpu_num);
-			if (b[i].x < b[ib].x){
-				# pragma omp critical
-				{
-					printf("[MERGER] Thread n:%d of (%d) of %d CPU, is in IF of second for\n", thread_num, real_thread_count, cpu_num);
-					ib=i; // ib -> leftmost point of b
-				}
-			}
-		}
-		
-	}
-	# else //no threads
-
 	// ia -> rightmost point of a
 	for (int i=1; i<a_sz; i++){
 		if(a[i].x > a[ia].x){ 
-			printf("[MERGER] First for, in IF, without thread\n");
 			ia = i;
 		}		
 	}
@@ -159,13 +115,10 @@ int merger(point *a,int a_sz, point *b, int b_sz, point *cx_hull, FILE *fptr, in
 	// ib -> leftmost point of b
 	for (int i=1; i<b_sz; i++){
 		if (b[i].x < b[ib].x){
-			printf("[MERGER] Second for, in IF, without thread\n");
 			ib=i;
 		}	
 	}
-	# endif
 	
-
 	// finding the upper tangent
 	int inda = ia, indb = ib;
 	bool done = 0;
@@ -300,7 +253,7 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
 	// If the number of points is less than 6 then the
 	// function uses the brute algorithm to find the
 	// convex hull
-	//printf("It does not arrive here");
+
     int lh_size = size/2;
     int rh_size = size/2 + size%2;
 	if (size <= 5) return bruteHull(cloud, size, cx_hull, fptr);
@@ -310,38 +263,40 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
     point *left = (point*)malloc(lh_size * sizeof(point));
     point *right = (point*)malloc(rh_size * sizeof(point));
 
-	/*
-	int custom_thread_count = 4;
+	bool multithreading = false;
+	(n_threads>1 && size > 16000) ? (multithreading=true) : (multithreading=false);
+	//printf("multithreading: %d\n", multithreading);
+	//printf("n_threads: %d\n", n_threads);
+
+	
 	#ifdef _OPENMP
-	# pragma omp parallel num_threads(custom_thread_count)
+	float start = omp_get_wtime();
+	# pragma omp parallel num_threads(n_threads) if(multithreading)
 	{
-		int thread_num = omp_get_thread_num();
-		int real_thread_count = omp_get_num_threads();
-		int cpu_num = sched_getcpu();
-		printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is starting to work [in divide]\n", thread_num, real_thread_count, cpu_num);
+		//int thread_num = omp_get_thread_num();
+		//int real_thread_count = omp_get_num_threads();
+		//int cpu_num = sched_getcpu();
+		//printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is starting to work [in divide]\n", thread_num, real_thread_count, cpu_num);
 
 		# pragma omp for
 		for (int i=0; i<lh_size; i++){
-			printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in first for [in divide] \n", thread_num, real_thread_count, cpu_num);
-			# pragma omp critical
-			{
-				left[i] = cloud[i];
-			}	
+			//printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in first for [in divide] \n", thread_num, real_thread_count, cpu_num);
+			left[i] = cloud[i];				
 		}
+		
 
-		# pragma omp barrier
+		//# pragma omp barrier
 
 		# pragma omp for
 		for (int i=0; i<rh_size; i++){
-			printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in second for [in divide] \n", thread_num, real_thread_count, cpu_num);
-			# pragma omp critical
-			{
-				right[i] = cloud[i+lh_size];
-			}	
+			//printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in second for [in divide] \n", thread_num, real_thread_count, cpu_num);
+			right[i] = cloud[i+lh_size];	
 		}	
 	}
+	float end = omp_get_wtime();
+	printf("parallel section time: %f\n", end-start);
 	# else //no threads
-	*/
+	
 	for (int i=0; i<lh_size; i++){
 		//printf("[DIVIDE] first assignment, without thread\n");
 		left[i] = cloud[i];
@@ -350,7 +305,9 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
 		//printf("[DIVIDE] second assignment, without thread\n");
 		right[i] = cloud[i+lh_size];
 	}		
-	//# endif
+	# endif
+
+
 
 	// convex hull for the left and right sets
     point left_hull[lh_size];
