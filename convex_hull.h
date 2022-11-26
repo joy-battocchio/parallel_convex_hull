@@ -264,6 +264,7 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
     point *right = (point*)malloc(rh_size * sizeof(point));
 
 	bool multithreading = false;
+	//printf("size: %d", size);
 	(n_threads>1 && size > 16000) ? (multithreading=true) : (multithreading=false);
 	//printf("multithreading: %d\n", multithreading);
 	//printf("n_threads: %d\n", n_threads);
@@ -278,23 +279,27 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
 		//int cpu_num = sched_getcpu();
 		//printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is starting to work [in divide]\n", thread_num, real_thread_count, cpu_num);
 
-		# pragma omp for
+		//printf("[lh size]: %d \n", lh_size);
+		//printf("[rh size]: %d \n", rh_size);
+
+		# pragma omp for nowait
 		for (int i=0; i<lh_size; i++){
 			//printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in first for [in divide] \n", thread_num, real_thread_count, cpu_num);
-			left[i] = cloud[i];				
+			left[i] = cloud[i];	
+			//sleep(0.01);		
 		}
 		
 
 		//# pragma omp barrier
 
-		# pragma omp for
+		# pragma omp for nowait
 		for (int i=0; i<rh_size; i++){
 			//printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is in second for [in divide] \n", thread_num, real_thread_count, cpu_num);
 			right[i] = cloud[i+lh_size];	
 		}	
 	}
 	float end = omp_get_wtime();
-	printf("parallel section time: %f\n", end-start);
+	//printf("parallel section time: %f, %f\n", start, end);
 	# else //no threads
 	
 	for (int i=0; i<lh_size; i++){
