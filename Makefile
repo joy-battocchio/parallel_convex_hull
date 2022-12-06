@@ -1,7 +1,7 @@
 CC = mpicc
 CC2 = gcc
 CFLAGS = -std=c99 -g -fopenmp -Wall -fstack-protector -lm  -I.
-DEPS = convex_hull.h
+DEPS = convex_hull.c
 OBJ = parallel_test.o
 OBJ2 = serial_test.o
 
@@ -44,6 +44,9 @@ sub_benchmark:
 
 sub_serial: 
 	qsub serial_test.sh
+
+sub_valgrind:
+	qsub parallel_valgrind.sh
 
 .PHONY: clean
 

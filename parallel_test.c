@@ -5,7 +5,10 @@
 #include <stddef.h>
 #include <math.h>
 #include <mpi.h>
-#include "convex_hull.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+#include "convex_hull.c"
 
 bool flag;
 
@@ -107,7 +110,7 @@ int main(int argc, char *argv[]) {
             //convex hull where to save the result of merging
             point convex_hull_merged[fragment_sz*2];
             MPI_Recv(convex_hull_rcvd, fragment_sz+1, MPI_point, my_rank-(int)pow(2,i-1), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            printf("step: %d    receiver: %d from %d\n",i, my_rank,  my_rank-(int)pow(2,i-1));
+            //printf("step: %d    receiver: %d from %d\n",i, my_rank,  my_rank-(int)pow(2,i-1));
             !flag ? true : fprintf(fptr, "START_PROCESS_MERGER\n");
             hull_size = merger(convex_hull_rcvd, convex_hull_rcvd[fragment_sz].x, convex_hull, hull_size, convex_hull_merged, fptr, n_threads);
             !flag ? true : fprintf(fptr, "###\n");
@@ -131,7 +134,7 @@ int main(int argc, char *argv[]) {
             */
 
             MPI_Send(convex_hull, fragment_sz+1, MPI_point, my_rank+(int)pow(2,i-1), 0, MPI_COMM_WORLD);
-            printf("step: %d    sender: %d to %d hull of size %lld\n",i, my_rank, my_rank+(int)pow(2,i-1), convex_hull[fragment_sz].x);
+            //printf("step: %d    sender: %d to %d hull of size %lld\n",i, my_rank, my_rank+(int)pow(2,i-1), convex_hull[fragment_sz].x);
             
             if(my_rank==0){
                 //free(cloud);
@@ -157,7 +160,7 @@ int main(int argc, char *argv[]) {
         //fprintf(fTime, "%lf\n", interval);
     }
     
-    printf("[FINAL] My rank: %d\n", my_rank);
+    //printf("[FINAL] My rank: %d\n", my_rank);
     MPI_Finalize();
     
     return 0;
