@@ -274,12 +274,12 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
 	
 	if(multithreading){
 		#ifdef _OPENMP
-		double start = omp_get_wtime();
+		//double start = omp_get_wtime();
 		# pragma omp parallel num_threads(n_threads) if(multithreading)
 		{
-			int thread_num = omp_get_thread_num();
-			int real_thread_count = omp_get_num_threads();
-			int cpu_num = sched_getcpu();
+			//int thread_num = omp_get_thread_num();
+			//int real_thread_count = omp_get_num_threads();
+			//int cpu_num = sched_getcpu();
 			//printf("[DIVIDE] Thread n:%d of (%d) of %d CPU, is starting to work [in divide]\n", thread_num, real_thread_count, cpu_num);
 
 			//printf("[lh size]: %d \n", lh_size);
@@ -301,7 +301,7 @@ int divide(point *cloud, int size, point *cx_hull, FILE *fptr, int n_threads){
 				right[i] = cloud[i+lh_size];	
 			}	
 		}
-		double end = omp_get_wtime();
+		//double end = omp_get_wtime();
 		
 		# else //no openmp support, no threads
 			//printf("inelse: %d\n", size);

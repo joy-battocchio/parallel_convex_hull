@@ -5,10 +5,25 @@ Parallel implementation of divide et impera algorithm for convex hull
 
 [Report draft](https://docs.google.com/document/d/1_C327FkdcKhVmEzGGBUFM-ujHrSveJl-PZCTR-ok-8A/edit#)
 
-intro
-SOTA + references (background inspiration)
-some info about serial (also pseudocode if needed)
-parallel:key points of implementation 
-benchamrk (table with numerical results, some charts, some conclusion) motivation on the result found on the cluster
-he could ask: why you got those specific result?
+## How to run the code
+General steps:
+
++ `cd parallel_convex_hull` (Moving inside the directory)
++ `module load mpich-3.2` (Loading the MPICH module)
++ `make clean` (Cleaning older binaries and output files)
+
+For the serial program:
+
++ `make serial` (Compiling the serial program)
++ `make sub_serial` (Submitting the job)
+
+For the parallel program:
++ `make parallel` (Compiling the parallel program)
++ `make sub_parallel` (Submitting the job)
++ `make sub_benchmark` (Submitting 10 jobs in a row)
+
+
+
+
+
 
