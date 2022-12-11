@@ -1,11 +1,12 @@
 # parallel_convex_hull
 Parallel implementation of divide et impera algorithm for convex hull
 
+**Note: unfortunately there are some weird formatting problems (tabs) in some sections of the code on GitHub**
+
 ![](https://github.com/joy-battocchio/parallel_convex_hull/blob/main/Serial_plotting.gif)
 
 ![](https://github.com/joy-battocchio/parallel_convex_hull/blob/main/Parallel_plotting.gif)
 
-**Note: unfortunately there are some weird formatting problems (tabs) in some sections of the code**
 
 ## Benchmark spreadsheet
 [Benchmark spreadsheet](https://docs.google.com/spreadsheets/d/1AfCg2CoH7EQCHtPAphq1yIljPKH1MVXR2ypcxep76lI/edit?usp=sharing)
